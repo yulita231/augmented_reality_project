@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description"
+    content="Aplikasi edukasi lingkungan interaktif berbasis WebAR untuk anak-anak. Belajar pilah sampah dengan cara yang menyenangkan!" />
+  <meta name="theme-color" content="#3a8c4e" />
+  <title>EcoKids AR - Belajar Lingkungan Seru!</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@500;600;700;800&display=swap"
+    rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            nunito: ['Nunito', 'sans-serif'],
+            baloo: ['Baloo 2', 'cursive'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- A-Frame -->
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <!-- MindAR -->
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <!-- ResponsiveVoice — natural Indonesian teacher voice -->
+  <script src="https://code.responsivevoice.org/responsivevoice.js?key=FREE"></script>
+</head>
+
+<body>
+
+  <!-- ============================================================
+       APP WRAPPER
+  ============================================================ -->
+  <div id="app">
+
+    <!-- ========================================================
+         SCREEN 1: BERANDA
+    ======================================================== -->
+    <div id="screen-home" class="screen active">
+
+      <!-- Hero Header -->
+      <div class="home-hero">
+        <div class="home-hero-bg"></div>
+        <div class="home-hero-content">
+          <div class="home-hero-text">
+            <p class="home-welcome">Hai, Selamat Datang! 🌞</p>
+            <h1 class="home-title">Halo, Adik! <span class="wave">👋</span></h1>
+            <p class="home-subtitle">Yuk, kita <strong>belajar bareng</strong><br>menjaga bumi kita! 🌍</p>
+          </div>
+          <div class="home-mascot">
+            <div class="mascot-bubble">🌿</div>
+            <div class="mascot-char">🧒</div>
+          </div>
+        </div>
+
+        <!-- Status bar inside hero -->
+        <!-- <div class="home-hero-stats">
+          <div class="hero-stat">
+            <span>🏆</span>
+            <span id="home-score">0 Poin</span>
+          </div>
+          <div class="hero-stat-divider"></div>
+          <div class="hero-stat">
+            <span>📚</span>
+            <span>4 Materi</span>
+          </div>
+          <div class="hero-stat-divider"></div>
+          <div class="hero-stat">
+            <span>✅</span>
+            <span id="home-done">0 Selesai</span>
+          </div>
+        </div> -->
+      </div>
+
+      <!-- Menu Section -->
+      <div class="home-menu-section">
+
+        <!-- Materi — Wide Card -->
+        <button id="btn-home-materi" class="home-wide-card" onclick="showScreen('screen-materi')">
+          <div class="home-wide-icon">📖</div>
+          <div class="home-wide-body">
+            <h3 class="home-wide-title">Belajar Materi</h3>
+            <!-- <p class="home-wide-sub">Kenali jenis-jenis sampah &amp; alam</p> -->
+          </div>
+          <div class="home-wide-arrow">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </div>
+        </button>
+
+        <!-- 2×2 Small Cards -->
+        <div class="home-small-grid">
+
+          <button id="btn-home-ar" class="home-small-card home-small-ar" onclick="showScreen('screen-ar')">
+            <div class="home-small-icon">📷</div>
+            <div class="home-small-title">Lihat AR!</div>
+            <div class="home-small-sub">Objek 3D<br>Keren! <span class="badge-ar">AR</span></div>
+          </button>
+
+          <button id="btn-home-game" class="home-small-card home-small-game" onclick="showScreen('screen-game')">
+            <div class="home-small-icon">🎮</div>
+            <div class="home-small-title">Main Yuk!</div>
+            <div class="home-small-sub">Pilah Sampah<br>Seru! 🗑️</div>
+          </button>
+
+          <!-- <button id="btn-home-kuis" class="home-small-card home-small-kuis" onclick="showScreen('screen-game')">
+            <div class="home-small-icon">❓</div>
+            <div class="home-small-title">Kuis</div>
+            <div class="home-small-sub">Tes pintar<br>kamu!</div>
+          </button>
+
+          <button id="btn-home-profil" class="home-small-card home-small-profil" onclick="showScreen('screen-profil')">
+            <div class="home-small-icon">🧒</div>
+            <div class="home-small-title">Profil Ku</div>
+            <div class="home-small-sub">Lihat<br>bintangku! ⭐</div>
+          </button> -->
+
+        </div>
+
+        <!-- Fun Fact -->
+        <!-- <div class="fun-fact-strip">
+          <span class="fun-fact-icon">💡</span>
+          <p class="fun-fact-text" id="fun-fact-text">Sampah plastik butuh 500 tahun untuk terurai! 🌱</p>
+        </div> -->
+
+      </div>
+    </div>
+
+    <!-- ========================================================
+         SCREEN 2: PILIH MATERI
+    ======================================================== -->
+    <div id="screen-materi" class="screen">
+
+      <!-- Green Header -->
+      <div class="green-header">
+        <button class="green-back-btn" onclick="showScreen('screen-home')" aria-label="Kembali">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 5l-7 7 7 7" />
+          </svg>
+        </button>
+        <h2 class="green-header-title">Pilih Materi</h2>
+        <div class="header-leaf">🌿</div>
+      </div>
+
+      <div class="materi-list-wrap">
+
+        <!-- Sampah Organik -->
+        <button class="materi-list-card" onclick="showDetail('organik')">
+          <div class="materi-list-left" style="background:linear-gradient(150deg,#d4edda,#a8d5b5);">
+            <div class="materi-list-icon-wrap">
+              <span class="materi-big-emoji">🗑️</span>
+            </div>
+            <div class="materi-list-items-row">
+              <span>🥦</span><span>🍌</span><span>🍂</span>
+            </div>
+          </div>
+          <div class="materi-list-body">
+            <span class="materi-tag" style="background:#d4edda;color:#2d6a4f;">Organik</span>
+            <h3 class="materi-list-title">Sampah Organik</h3>
+            <p class="materi-list-desc">Sampah dari makhluk hidup yang bisa terurai alami</p>
+          </div>
+          <div class="materi-list-arrow" style="color:#3a8c4e;">›</div>
+        </button>
+
+        <!-- Sampah Anorganik -->
+        <button class="materi-list-card" onclick="showDetail('anorganik')">
+          <div class="materi-list-left" style="background:linear-gradient(150deg,#fff3cd,#ffd77a);">
+            <div class="materi-list-icon-wrap">
+              <span class="materi-big-emoji">🗑️</span>
+            </div>
+            <div class="materi-list-items-row">
+              <span>🧴</span><span>🥫</span><span>📰</span>
+            </div>
+          </div>
+          <div class="materi-list-body">
+            <span class="materi-tag" style="background:#fff3cd;color:#856404;">Anorganik</span>
+            <h3 class="materi-list-title">Sampah Anorganik</h3>
+            <p class="materi-list-desc">Sampah buatan manusia yang sulit terurai</p>
+          </div>
+          <div class="materi-list-arrow" style="color:#ca8a04;">›</div>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- ========================================================
+         SCREEN 3: AR SCAN
+    ======================================================== -->
+    <div id="screen-ar" class="screen">
+      <div id="ar-container" class="ar-container">
+
+        <!-- A-Frame Scene -->
+       <!-- Kunci kontak utama (Biarkan seperti aslinya) -->
+      <a-scene id="ar-scene"
+        mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: false; uiLoading: no; uiError: no; uiScanning: no;"
+        color-space="sRGB"
+        renderer="colorManagement: true, physicallyCorrectLights"
+        vr-mode-ui="enabled: false"
+        device-orientation-permission-ui="enabled: false"
+        embedded
+        style="width:100%;height:100%;">
+            <!-- Semua model 3D yang sudah tersedia -->
+            <a-assets>
+              <a-asset-item id="model-baterai" src="./assets/models/0-battery.glb"></a-asset-item>
+              <a-asset-item id="model-botol" src="./assets/models/1-bottle.glb"></a-asset-item>
+              <a-asset-item id="model-kaleng" src="./assets/models/2-kaleng.glb"></a-asset-item>
+              <a-asset-item id="model-plastik" src="./assets/models/3-plastic.glb"></a-asset-item>
+            </a-assets>
+
+            <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+            <!-- Target 0: Baterai (3D) -->
+            <a-entity mindar-image-target="targetIndex: 0">
+              <a-gltf-model
+                id="obj-baterai"
+                src="#model-baterai"
+                scale="0.05 0.05 0.05"
+                position="0 0 0"
+                rotation="0 0 0"
+                visible="false">
+              </a-gltf-model>
+            </a-entity>
+
+            <!-- Target 1: Botol Plastik (3D) -->
+            <a-entity mindar-image-target="targetIndex: 1">
+              <a-gltf-model
+                id="obj-botol"
+                src="#model-botol"
+                scale="0.05 0.05 0.05"
+                position="0 0 0"
+                rotation="0 0 0"
+                visible="false">
+              </a-gltf-model>
+            </a-entity>
+
+            <!-- Target 2: Kaleng (3D) -->
+            <a-entity mindar-image-target="targetIndex: 2">
+              <a-gltf-model
+                id="obj-kaleng"
+                src="#model-kaleng"
+                scale="0.05 0.05 0.05"
+                position="0 0 0"
+                rotation="0 0 0"
+                visible="false">
+              </a-gltf-model>
+            </a-entity>
+
+            <!-- Target 3: Plastik (3D) -->
+            <a-entity mindar-image-target="targetIndex: 3">
+              <a-gltf-model
+                id="obj-plastik"
+                src="#model-plastik"
+                scale="0.05 0.05 0.05"
+                position="0 0 0"
+                rotation="0 0 0"
+                visible="false">
+              </a-gltf-model>
+            </a-entity>
+
+              <!-- Target 4 (Image 5 di Website) -->
+            <a-entity mindar-image-target="targetIndex: 4">
+                <a-image src="./assets/4-kemasan-snack.png" position="0 0 0" height="1" width="1"></a-image>
+            </a-entity>
+
+              <!-- Target 5 (Image 6 di Website) -->
+            <a-entity mindar-image-target="targetIndex: 5">
+                <a-image src="./assets/5-daun-kering.png" position="0 0 0" height="1" width="1"></a-image>
+            </a-entity>
+
+              <!-- Target 6 (Image 7 di Website) -->
+            <a-entity mindar-image-target="targetIndex: 6">
+                <a-image src="./assets/6-kulit-pisang.png" position="0 0 0" height="1" width="1"></a-image>
+            </a-entity>
+
+              <!-- Target 7 (Image 8 di Website) -->
+            <a-entity mindar-image-target="targetIndex: 7">
+                <a-image src="./assets/7-kulit-telur.png" position="0 0 0" height="1" width="1"></a-image>
+            </a-entity>
+
+              <!-- Target 8 (Image 9 di Website) -->
+            <a-entity mindar-image-target="targetIndex: 8">
+                <a-image src="./assets/8-sisa-makanan.png" position="0 0 0" height="1" width="1"></a-image>
+            </a-entity>
+
+              <!-- Target 9 (Image 10 di Website) -->
+            <a-entity mindar-image-target="targetIndex: 9">
+                <a-image src="./assets/9-tulang-ayam.png" position="0 0 0" height="1" width="1"></a-image>
+            </a-entity>
+</a-scene>
+
+        <!-- AR Overlay -->
+        <div id="ar-overlay" class="ar-overlay">
+          <!-- Top Controls -->
+          <div class="ar-top-row">
+            <button class="ar-round-btn" onclick="stopAR()" aria-label="Kembali">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M19 12H5M12 5l-7 7 7 7" />
+              </svg>
+            </button>
+            <div class="ar-status-pill" id="ar-status">
+              <span class="ar-status-dot"></span>
+              <span>Mencari marker...</span>
+            </div>
+            <button class="ar-round-btn" onclick="playARInfo()" aria-label="Info">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Center Frame -->
+          <div class="ar-center-frame">
+            <div class="ar-corner tl"></div>
+            <div class="ar-corner tr"></div>
+            <div class="ar-corner bl"></div>
+            <div class="ar-corner br"></div>
+            <div class="ar-scan-beam"></div>
+          </div>
+
+          <!-- Info Panel -->
+          <div id="ar-info-panel" class="ar-info-pill hidden">
+            <span class="text-lg">🗑️</span>
+            <div>
+              <p class="text-xs font-black text-green-900">Tempat Sampah Organik</p>
+              <p class="text-xs text-green-700">Terdeteksi!</p>
+            </div>
+            <button onclick="showDetail('organik')" class="ar-pill-btn">Pelajari →</button>
+          </div>
+
+          <!-- Bottom Controls -->
+          <div class="ar-bottom-controls">
+            <button class="ar-ctrl-btn" id="btn-ar-rotate" onclick="toggleARRotate()">
+              <div class="ar-ctrl-circle">🔄</div>
+              <span>Putar</span>
+            </button>
+            <button class="ar-ctrl-btn ar-ctrl-main" id="btn-ar-capture" onclick="captureAR()">
+              <div class="ar-ctrl-circle ar-ctrl-circle-main">📷</div>
+              <span>Kamera</span>
+            </button>
+            <button class="ar-ctrl-btn" id="btn-ar-audio" onclick="playARInfo()">
+              <div class="ar-ctrl-circle">🔊</div>
+              <span>Suara</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- AR Start Overlay -->
+        <div id="ar-start-overlay" class="ar-start-overlay">
+          <div class="ar-start-card">
+            <div class="ar-start-icon">📷</div>
+            <h3 class="ar-start-title">Mode AR Scan</h3>
+            <p class="ar-start-desc">Arahkan kamera ke gambar marker untuk melihat objek 3D muncul!</p>
+            <div class="ar-tips-list">
+              <div class="ar-tip-row"><span>💡</span><span>Pastikan cahaya cukup</span></div>
+              <div class="ar-tip-row"><span>📐</span><span>Jarak 20-30 cm dari marker</span></div>
+              <div class="ar-tip-row"><span>🤚</span><span>Tahan kamera agar stabil</span></div>
+            </div>
+            <button id="btn-start-ar" class="btn-green-main" onclick="startAR()">🚀 Mulai Scan AR</button>
+            <button class="btn-green-outline mt-3" onclick="showScreen('screen-home')">← Kembali</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ========================================================
+         SCREEN 4: DETAIL MATERI (injected by JS)
+    ======================================================== -->
+    <div id="screen-detail" class="screen">
+      <div id="detail-content"></div>
+    </div>
+
+    <!-- ========================================================
+         SCREEN 5: GAME — PILAH SAMPAH
+    ======================================================== -->
+    <div id="screen-game" class="screen">
+
+      <!-- Game Header -->
+      <div class="game-topbar">
+        <button class="game-back-btn" onclick="confirmLeaveGame()" aria-label="Kembali">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <path d="M19 12H5M12 5l-7 7 7 7" />
+          </svg>
+        </button>
+        <!-- Lives (stars) -->
+        <div class="game-lives-row" id="game-lives-row">
+          <span class="game-life">⭐</span>
+          <span class="game-life">⭐</span>
+          <span class="game-life">⭐</span>
+          <span class="game-life">⭐</span>
+          <span class="game-life">⭐</span>
+        </div>
+        <div class="game-timer-badge">
+          <span class="game-timer-icon">⏱</span>
+          <span class="game-timer-num" id="game-timer">60</span>
+        </div>
+      </div>
+
+      <!-- Game Body -->
+      <div id="game-area" class="game-body">
+
+        <!-- Instruction Text -->
+        <div class="game-instruction-text" id="game-instruction-text">
+          Pilih dan pindahkan sampah ke tempat yang benar!
+        </div>
+
+        <!-- Item Row -->
+        <div class="game-item-row" id="trash-item-container">
+          <!-- Start Prompt -->
+          <div class="game-start-prompt" id="game-instruction">
+            <div class="game-start-bubble">
+              <span class="text-3xl mb-2 block">🎮</span>
+              <p>Seret sampah ke tempat yang <strong>benar!</strong></p>
+              <button class="btn-green-main mt-4" onclick="startGame()">Mulai Main! 🚀</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feedback Overlay -->
+        <div id="feedback-overlay" class="feedback-overlay hidden">
+          <div id="feedback-content" class="feedback-content"></div>
+        </div>
+
+        <!-- Game Scene / Bins Area -->
+        <div class="game-scene">
+          <div class="game-ground"></div>
+          <!-- Bins — big basket style -->
+          <div class="game-bins-row">
+
+            <div id="bin-organik" class="game-bin game-bin-organik" ondragover="event.preventDefault()"
+              ondrop="dropItem(event, 'organik')" onclick="clickBin('organik')">
+              <!-- Basket body -->
+              <div class="bin-basket-body bin-green">
+                <div class="bin-opening bin-opening-green"></div>
+                <div class="bin-label-area">
+                  <span class="bin-icon-big">🌿</span>
+                  <div class="bin-label-text">ORGANIK</div>
+                </div>
+              </div>
+              <div class="game-bin-glow-green"></div>
+            </div>
+
+            <div id="bin-anorganik" class="game-bin game-bin-anorganik" ondragover="event.preventDefault()"
+              ondrop="dropItem(event, 'anorganik')" onclick="clickBin('anorganik')">
+              <!-- Basket body -->
+              <div class="bin-basket-body bin-yellow">
+                <div class="bin-opening bin-opening-yellow"></div>
+                <div class="bin-label-area">
+                  <span class="bin-icon-big">♻️</span>
+                  <div class="bin-label-text">ANORGANIK</div>
+                </div>
+              </div>
+              <div class="game-bin-glow-yellow"></div>
+            </div>
+
+          </div>
+
+          <!-- Decorative Trees -->
+          <div class="game-tree game-tree-left">🌳</div>
+          <div class="game-tree game-tree-right">🌳</div>
+        </div>
+
+      </div>
+
+      <!-- Game Over -->
+      <div id="game-over-screen" class="game-over-screen hidden">
+        <div class="game-over-card">
+          <div class="game-over-trophy" id="game-over-trophy">🏆</div>
+          <h3 class="game-over-title" id="game-over-title">Kamu Hebat!</h3>
+          <p class="game-over-sub">Nyawa tersisa:</p>
+          <div class="game-over-score" id="game-over-score" style="font-size:32px;">⭐⭐⭐⭐⭐</div>
+          <div class="game-over-stats">
+            <div class="game-stat-pill green">
+              <span>✅</span>
+              <span id="stat-benar">0 Benar</span>
+            </div>
+            <div class="game-stat-pill red">
+              <span>❌</span>
+              <span id="stat-salah">0 Salah</span>
+            </div>
+          </div>
+          <button class="btn-green-main w-full mb-3" onclick="restartGame()">🔄 Main Lagi</button>
+          <button class="btn-green-outline w-full" onclick="showScreen('screen-home')">🏠 Beranda</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================================
+         SCREEN: PROFIL
+    ======================================================== -->
+    <div id="screen-profil" class="screen">
+      <div class="green-header">
+        <button class="green-back-btn" onclick="showScreen('screen-home')" aria-label="Kembali">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 5l-7 7 7 7" />
+          </svg>
+        </button>
+        <h2 class="green-header-title">Profil Saya</h2>
+        <div class="header-leaf">🌿</div>
+      </div>
+
+      <div class="profil-body">
+        <div class="profil-avatar-section">
+          <!-- Hidden file input for gallery -->
+          <input type="file" id="avatar-file-input" accept="image/*" style="display:none"
+            onchange="handleAvatarChange(event)">
+          <div class="profil-avatar-ring" onclick="document.getElementById('avatar-file-input').click()"
+            title="Ganti Foto">
+            <img id="profil-avatar-img" class="profil-avatar-img hidden" src="" alt="Foto Profil">
+            <span id="profil-avatar-emoji" class="profil-avatar-emoji">🧒</span>
+            <div class="profil-avatar-camera-hint">📷</div>
+          </div>
+          <button class="profil-change-btn" onclick="document.getElementById('avatar-file-input').click()">📷 Ganti
+            Foto</button>
+          <h3 class="profil-name">EcoKid #1</h3>
+          <p class="profil-tagline">Pejuang Lingkungan Muda 🌿</p>
+          <div class="profil-level-chip">🌱 Level: Pemula</div>
+        </div>
+
+        <div class="profil-stats-row">
+          <div class="profil-stat-card">
+            <span class="text-2xl">🏆</span>
+            <span class="profil-stat-num" id="profil-score">0</span>
+            <span class="profil-stat-label">Total Poin</span>
+          </div>
+          <div class="profil-stat-card">
+            <span class="text-2xl">🎮</span>
+            <span class="profil-stat-num" id="profil-games">0</span>
+            <span class="profil-stat-label">Game</span>
+          </div>
+          <div class="profil-stat-card">
+            <span class="text-2xl">📖</span>
+            <span class="profil-stat-num" id="profil-materi">0</span>
+            <span class="profil-stat-label">Materi</span>
+          </div>
+        </div>
+
+        <h4 class="profil-section-title">Lencana</h4>
+        <div class="profil-badges-row">
+          <div class="profil-badge active"><span>🌱</span><span>Pemula</span></div>
+          <div class="profil-badge locked"><span>🌿</span><span>Pelajar</span></div>
+          <div class="profil-badge locked"><span>🌳</span><span>Ahli</span></div>
+          <div class="profil-badge locked"><span>🌍</span><span>Pahlawan</span></div>
+        </div>
+
+        <h4 class="profil-section-title">Tips Hari Ini 💚</h4>
+        <div class="profil-tip-box">
+          <p>Bawa tas belanja sendiri saat ke pasar. Satu tas kain bisa menggantikan ratusan kantong plastik! 👜</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- #app -->
+
+  <!-- ========================================================
+       BOTTOM NAVIGATION
+  ======================================================== -->
+  <nav id="bottom-nav" class="bottom-nav" role="navigation" aria-label="Navigasi Utama">
+    <button class="nav-item active" id="nav-home" onclick="navTo('home')" aria-label="Beranda">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Rumah</span>
+    </button>
+    <button class="nav-item" id="nav-materi" onclick="navTo('materi')" aria-label="Materi">
+      <span class="nav-icon">📖</span>
+      <span class="nav-label">Belajar</span>
+    </button>
+    <button class="nav-item nav-center-item" id="nav-ar" onclick="navTo('ar')" aria-label="AR Scan">
+      <div class="nav-cam-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+          <circle cx="12" cy="13" r="4" />
+        </svg>
+      </div>
+      <span class="nav-label">Scan AR</span>
+    </button>
+    <button class="nav-item" id="nav-game" onclick="navTo('game')" aria-label="Game">
+      <span class="nav-icon">🎮</span>
+      <span class="nav-label">Main</span>
+    </button>
+    <button class="nav-item" id="nav-profil" onclick="navTo('profil')" aria-label="Profil">
+      <span class="nav-icon">⭐</span>
+      <span class="nav-label">Profil</span>
+    </button>
+  </nav>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden" role="alert" aria-live="polite"></div>
+  <!-- Flash -->
+  <div id="capture-flash" class="capture-flash hidden"></div>
+
+  <script src="js/app.js?v=2"></script>
+  <script src="js/game.js?v=2"></script>
+</body>
+
+</html>
