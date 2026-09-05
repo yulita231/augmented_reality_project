@@ -21,6 +21,8 @@ const AppState = {
   speechSynth: window.speechSynthesis || null,
   funFactIndex: 0,
   currentARTarget: null,
+  arBusy: false,
+  arStopping: false,
 };
 
 /* ============================================================
@@ -109,8 +111,9 @@ function showScreen(screenId) {
     return;
   }
 
-  // Stop AR if leaving
-  if (AppState.arRunning) stopAR();
+  // Stop AR if leaving (cleanup saja, tanpa memaksa pindah ke Beranda —
+  // supaya tidak menimpa layar tujuan yang sedang dituju)
+  if (AppState.arRunning) stopARInternal();
 
   // Hide all screens
   document.querySelectorAll('.screen.active').forEach(s => {
@@ -140,6 +143,7 @@ function showScreen(screenId) {
   if (screenId === 'screen-profil') {
     updateProfilStats();
     loadAvatar();
+    loadUsername();
   }
   if (screenId === 'screen-home') updateHomeStats();
 }
@@ -160,6 +164,31 @@ function updateNav(active) {
   const target = document.getElementById(`nav-${active}`);
   if (target) target.classList.add('active');
 }
+
+/* ============================================================
+   BURGER MENU (pengganti item Profil di bottom nav)
+   ============================================================ */
+function toggleBurgerMenu(event) {
+  if (event) event.stopPropagation();
+  const dropdown = document.getElementById('burger-menu-dropdown');
+  if (!dropdown) return;
+  dropdown.classList.toggle('hidden');
+}
+
+function closeBurgerMenu() {
+  const dropdown = document.getElementById('burger-menu-dropdown');
+  if (dropdown) dropdown.classList.add('hidden');
+}
+
+// Klik di luar menu akan menutup dropdown
+document.addEventListener('click', (e) => {
+  const wrap = document.getElementById('burger-menu-dropdown');
+  const btn = document.getElementById('btn-burger-menu');
+  if (!wrap || wrap.classList.contains('hidden')) return;
+  if (!wrap.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+    closeBurgerMenu();
+  }
+});
 
 function updateHomeStats() {
   const el = document.getElementById('home-score');
@@ -233,6 +262,81 @@ function applyAvatarImage(src) {
     img.classList.remove('hidden');
   }
   if (emoji) emoji.style.display = 'none';
+
+  // Sinkronkan ke avatar mini di tombol burger menu
+  const miniImg = document.getElementById('profil-avatar-img-mini');
+  const miniEmoji = document.getElementById('profil-avatar-emoji-mini');
+  if (miniImg) {
+    miniImg.src = src;
+    miniImg.classList.remove('hidden');
+  }
+  if (miniEmoji) miniEmoji.style.display = 'none';
+}
+
+/* ============================================================
+   PROFIL — EDIT USERNAME
+   ============================================================ */
+function loadUsername() {
+  const saved = localStorage.getItem('ecokids-username');
+  const name = saved && saved.trim() ? saved.trim() : 'EcoKid #1';
+  const nameEl = document.getElementById('profil-name');
+  if (nameEl) nameEl.textContent = name;
+  return name;
+}
+
+function startEditUsername() {
+  const nameRow = document.getElementById('profil-name-row');
+  const editRow = document.getElementById('profil-name-edit-row');
+  const input = document.getElementById('profil-name-input');
+  const currentName = document.getElementById('profil-name');
+  if (!nameRow || !editRow || !input) return;
+
+  input.value = (currentName && currentName.textContent !== 'EcoKid #1')
+    ? currentName.textContent
+    : (localStorage.getItem('ecokids-username') || '');
+
+  nameRow.classList.add('hidden');
+  editRow.classList.remove('hidden');
+  input.focus();
+  input.select();
+
+  input.onkeydown = (e) => {
+    if (e.key === 'Enter') saveUsername();
+    if (e.key === 'Escape') cancelEditUsername();
+  };
+}
+
+function saveUsername() {
+  const input = document.getElementById('profil-name-input');
+  const nameRow = document.getElementById('profil-name-row');
+  const editRow = document.getElementById('profil-name-edit-row');
+  if (!input) return;
+
+  const value = input.value.trim();
+  if (!value) {
+    showToast('⚠️ Nama tidak boleh kosong!');
+    input.focus();
+    return;
+  }
+
+  try {
+    localStorage.setItem('ecokids-username', value);
+  } catch (e) {
+    showToast('⚠️ Gagal menyimpan nama, coba lagi!');
+    return;
+  }
+
+  loadUsername();
+  if (nameRow) nameRow.classList.remove('hidden');
+  if (editRow) editRow.classList.add('hidden');
+  showToast('🎉 Nama berhasil diganti!');
+}
+
+function cancelEditUsername() {
+  const nameRow = document.getElementById('profil-name-row');
+  const editRow = document.getElementById('profil-name-edit-row');
+  if (nameRow) nameRow.classList.remove('hidden');
+  if (editRow) editRow.classList.add('hidden');
 }
 
 /* ============================================================
@@ -497,8 +601,75 @@ function playARDetectSound() {
 
 /* ============================================================
    AR SCAN
+   ============================================================
+   CATATAN PERBAIKAN BUG "kamera macet setelah back & buka lagi":
+   MindAR + A-Frame menyimpan state internal (video element, stream,
+   processing loop) di dalam system 'mindar-image-system'. Memanggil
+   .stop() lalu .start() lagi pada instance yang SAMA seringkali
+   gagal membuka ulang kamera dengan baik (perlu refresh manual).
+   Solusi: setiap kali AR dibuka & dimulai, elemen <a-scene> lama
+   dibongkar total dan dibangun ulang dari template asli, sehingga
+   MindAR selalu mendapat state yang benar-benar bersih.
    ============================================================ */
+
+// Template asli <a-scene> disimpan sekali di awal (sebelum ada modifikasi apapun)
+let AR_SCENE_TEMPLATE = null;
+
+function captureARSceneTemplate() {
+  const scene = document.getElementById('ar-scene');
+  if (scene && !AR_SCENE_TEMPLATE) {
+    AR_SCENE_TEMPLATE = scene.outerHTML;
+  }
+}
+
+// Hentikan paksa semua video/track kamera yang tersisa di dalam ar-container
+function hardStopCameraTracks() {
+  const container = document.getElementById('ar-container');
+  if (!container) return;
+  container.querySelectorAll('video').forEach(v => {
+    try {
+      if (v.srcObject) {
+        v.srcObject.getTracks().forEach(t => t.stop());
+        v.srcObject = null;
+      }
+    } catch (e) { /* ignore */ }
+  });
+}
+
+// Bongkar <a-scene> lama & pasang yang baru dari template asli
+function rebuildARScene() {
+  const container = document.getElementById('ar-container');
+  if (!container || !AR_SCENE_TEMPLATE) return document.getElementById('ar-scene');
+
+  hardStopCameraTracks();
+
+  const oldScene = document.getElementById('ar-scene');
+  if (oldScene) oldScene.remove();
+
+  // Buang juga video/canvas sisa yang sempat disuntik MindAR langsung ke container
+  container.querySelectorAll('video, canvas').forEach(el => el.remove());
+
+  container.insertAdjacentHTML('afterbegin', AR_SCENE_TEMPLATE);
+  return document.getElementById('ar-scene');
+}
+
+// Tunggu sampai a-scene benar-benar siap (systems ter-init) sebelum start()
+function waitForSceneReady(scene) {
+  return new Promise((resolve) => {
+    if (!scene) return resolve();
+    if (scene.hasLoaded) return resolve();
+    let done = false;
+    const finish = () => { if (!done) { done = true; resolve(); } };
+    scene.addEventListener('loaded', finish, { once: true });
+    // Jaga-jaga kalau event 'loaded' tidak terpicu (mis. asset lambat)
+    setTimeout(finish, 2500);
+  });
+}
+
 async function startAR() {
+  if (AppState.arBusy) return; // cegah klik ganda / tumpang-tindih
+  AppState.arBusy = true;
+
   const startOverlay = document.getElementById('ar-start-overlay');
   const startBtn = document.getElementById('btn-start-ar');
 
@@ -508,28 +679,22 @@ async function startAR() {
   }
 
   try {
-    const scene = document.getElementById('ar-scene');
-
+    // Selalu bangun ulang scene supaya MindAR mulai dari state bersih
+    const scene = rebuildARScene();
     if (!scene) throw new Error('A-Frame scene not found');
 
-    // Show scene, hide start overlay
     scene.style.display = 'block';
+    await waitForSceneReady(scene);
 
-    // Initialize MindAR
-    const mindarSystem = scene.systems && scene.systems['mindar-image-system'];
-
-    // Listen for target events
-    //scene.addEventListener('markerFound', handleMarkerFound, { once: false });
-    //scene.addEventListener('markerLost', handleMarkerLost, { once: false });
-
+    // Listener target — aman karena scene baru, tidak ada listener lama menumpuk
     scene.addEventListener('targetFound', handleMarkerFound, { once: false });
     scene.addEventListener('targetLost', handleMarkerLost, { once: false });
-    // taruh di startAR(), dekat listener markerFound/markerLost
     scene.addEventListener('arReady', () => console.log('[MindAR] READY'));
     scene.addEventListener('arError', (e) => console.error('[MindAR] ERROR:', e.detail));
-    // Start MindAR via A-Frame play
-    if (scene.systems && scene.systems['mindar-image-system']) {
-      AppState.arSystem = scene.systems['mindar-image-system'];
+
+    const mindarSystem = scene.systems && scene.systems['mindar-image-system'];
+    if (mindarSystem) {
+      AppState.arSystem = mindarSystem;
       await AppState.arSystem.start();
     } else {
       // Fallback: play the scene
@@ -558,11 +723,17 @@ async function startAR() {
       startBtn.textContent = '🔄 Coba Lagi';
       startBtn.disabled = false;
     }
+  } finally {
+    AppState.arBusy = false;
   }
 }
 
-function stopAR() {
-  const scene = document.getElementById('ar-scene');
+// Cleanup murni (tanpa pindah layar) — dipakai juga saat user pindah ke
+// screen lain sementara AR masih jalan, supaya tidak "nyelonong" balik ke Beranda
+async function stopARInternal() {
+  if (AppState.arStopping) return;
+  AppState.arStopping = true;
+
   const startOverlay = document.getElementById('ar-start-overlay');
 
   // Stop rotation
@@ -572,19 +743,19 @@ function stopAR() {
     AppState.arRotating = false;
   }
 
-  // Stop MindAR
+  // Stop MindAR system dengan benar (async)
   try {
     if (AppState.arSystem) {
-      AppState.arSystem.stop();
-      AppState.arSystem = null;
-    }
-    if (scene) {
-      scene.pause && scene.pause();
+      await AppState.arSystem.stop();
     }
   } catch (e) {
     console.warn('AR stop error:', e);
   }
 
+  // Pastikan tidak ada track kamera yang masih menyala (penyebab utama macet)
+  hardStopCameraTracks();
+
+  AppState.arSystem = null;
   AppState.arRunning = false;
 
   // Show start overlay again
@@ -600,6 +771,12 @@ function stopAR() {
     statusEl.innerHTML = '<span class="ar-status-dot"></span><span class="text-xs text-white font-semibold">Mencari...</span>';
   }
 
+  AppState.arStopping = false;
+}
+
+// Dipanggil dari tombol "Kembali" di layar AR — cleanup + pulang ke Beranda
+async function stopAR() {
+  await stopARInternal();
   showScreen('screen-home');
 }
 
@@ -770,6 +947,13 @@ function confirmLeaveGame() {
 document.addEventListener('DOMContentLoaded', () => {
   // Show initial screen
   showScreen('screen-home');
+
+  // Sinkronkan avatar mini di burger menu & nama pengguna sejak awal
+  loadAvatar();
+  loadUsername();
+
+  // Simpan template asli scene AR agar bisa dibangun ulang saat AR di-restart
+  captureARSceneTemplate();
 
   // Rotate fun facts every 6 seconds
   setInterval(rotateFunFact, 6000);

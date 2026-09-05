@@ -57,10 +57,27 @@
       <!-- Hero Header -->
       <div class="home-hero">
         <div class="home-hero-bg"></div>
+
+        <!-- Burger Menu (pengganti nav Profil) -->
+        <div class="hero-menu-wrap">
+          <button id="btn-burger-menu" class="hero-burger-btn" onclick="toggleBurgerMenu(event)"
+            aria-label="Menu">
+            <span id="profil-avatar-emoji-mini" class="hero-burger-avatar-emoji">🧒</span>
+            <img id="profil-avatar-img-mini" class="hero-burger-avatar-img hidden" src="" alt="">
+            <span class="hero-burger-lines"><span></span><span></span><span></span></span>
+          </button>
+          <div id="burger-menu-dropdown" class="hero-burger-dropdown hidden">
+            <button class="burger-menu-item" onclick="closeBurgerMenu(); showScreen('screen-profil')">
+              <span class="burger-menu-icon">👤</span>
+              <span>Profil Saya</span>
+            </button>
+          </div>
+        </div>
+
         <div class="home-hero-content">
           <div class="home-hero-text">
-            <p class="home-welcome">Hai, Selamat Datang! 🌞</p>
-            <h1 class="home-title">Halo, Adik! <span class="wave">👋</span></h1>
+            <p class="home-welcome">Selamat Datang! 🌞</p>
+            <h1 class="home-title">EcoKids AR <span class="wave">👋</span></h1>
             <p class="home-subtitle">Yuk, kita <strong>belajar bareng</strong><br>menjaga bumi kita! 🌍</p>
           </div>
           <div class="home-mascot">
@@ -534,7 +551,21 @@
           </div>
           <button class="profil-change-btn" onclick="document.getElementById('avatar-file-input').click()">📷 Ganti
             Foto</button>
-          <h3 class="profil-name">EcoKid #1</h3>
+
+          <!-- Nama (mode tampil) -->
+          <div class="profil-name-row" id="profil-name-row">
+            <h3 class="profil-name" id="profil-name">EcoKid #1</h3>
+            <button class="profil-edit-name-btn" onclick="startEditUsername()" aria-label="Edit Nama">✏️</button>
+          </div>
+
+          <!-- Nama (mode edit) -->
+          <div class="profil-name-edit-row hidden" id="profil-name-edit-row">
+            <input type="text" id="profil-name-input" class="profil-name-input" maxlength="20"
+              placeholder="Nama kamu..." />
+            <button class="profil-name-save-btn" onclick="saveUsername()" aria-label="Simpan">✔</button>
+            <button class="profil-name-cancel-btn" onclick="cancelEditUsername()" aria-label="Batal">✕</button>
+          </div>
+
           <p class="profil-tagline">Pejuang Lingkungan Muda 🌿</p>
           <div class="profil-level-chip">🌱 Level: Pemula</div>
         </div>
@@ -573,37 +604,6 @@
     </div>
 
   </div><!-- #app -->
-
-  <!-- ========================================================
-       BOTTOM NAVIGATION
-  ======================================================== -->
-  <nav id="bottom-nav" class="bottom-nav" role="navigation" aria-label="Navigasi Utama">
-    <button class="nav-item active" id="nav-home" onclick="navTo('home')" aria-label="Beranda">
-      <span class="nav-icon">🏠</span>
-      <span class="nav-label">Rumah</span>
-    </button>
-    <button class="nav-item" id="nav-materi" onclick="navTo('materi')" aria-label="Materi">
-      <span class="nav-icon">📖</span>
-      <span class="nav-label">Belajar</span>
-    </button>
-    <button class="nav-item nav-center-item" id="nav-ar" onclick="navTo('ar')" aria-label="AR Scan">
-      <div class="nav-cam-btn">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-          <circle cx="12" cy="13" r="4" />
-        </svg>
-      </div>
-      <span class="nav-label">Scan AR</span>
-    </button>
-    <button class="nav-item" id="nav-game" onclick="navTo('game')" aria-label="Game">
-      <span class="nav-icon">🎮</span>
-      <span class="nav-label">Main</span>
-    </button>
-    <button class="nav-item" id="nav-profil" onclick="navTo('profil')" aria-label="Profil">
-      <span class="nav-icon">⭐</span>
-      <span class="nav-label">Profil</span>
-    </button>
-  </nav>
 
   <!-- Toast -->
   <div id="toast" class="toast hidden" role="alert" aria-live="polite"></div>
