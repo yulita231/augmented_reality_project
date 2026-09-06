@@ -77,7 +77,7 @@
         <div class="home-hero-content">
           <div class="home-hero-text">
             <p class="home-welcome">Selamat Datang! 🌞</p>
-            <h1 class="home-title">EcoKids AR <span class="wave">👋</span></h1>
+            <h1 class="home-title home-title-wordmark">EcoKids AR <span class="wave">👋</span></h1>
             <p class="home-subtitle">Yuk, kita <strong>belajar bareng</strong><br>menjaga bumi kita! 🌍</p>
           </div>
           <div class="home-mascot">
@@ -103,6 +103,13 @@
             <span id="home-done">0 Selesai</span>
           </div>
         </div> -->
+
+        <!-- Wave divider — transisi organik ke panel konten -->
+        <svg class="home-hero-wave" viewBox="0 0 500 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true">
+          <path d="M0,34 C 60,58 120,4 180,26 C 240,48 300,6 365,28 C 415,46 460,12 500,24 L500,60 L0,60 Z"
+            fill="#F2F9F4" />
+        </svg>
       </div>
 
       <!-- Menu Section -->
@@ -113,10 +120,11 @@
           <div class="home-wide-icon">📖</div>
           <div class="home-wide-body">
             <h3 class="home-wide-title">Belajar Materi</h3>
-            <!-- <p class="home-wide-sub">Kenali jenis-jenis sampah &amp; alam</p> -->
+            <p class="home-wide-sub">Kenali sampah &amp; cara memilahnya</p>
           </div>
-          <div class="home-wide-arrow">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+          <div class="home-wide-cta">
+            <span>Mulai</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
           </div>
@@ -126,13 +134,13 @@
         <div class="home-small-grid">
 
           <button id="btn-home-ar" class="home-small-card home-small-ar" onclick="showScreen('screen-ar')">
-            <div class="home-small-icon">📷</div>
+            <div class="home-small-icon-badge">📷</div>
             <div class="home-small-title">Lihat AR!</div>
             <div class="home-small-sub">Objek 3D<br>Keren! <span class="badge-ar">AR</span></div>
           </button>
 
           <button id="btn-home-game" class="home-small-card home-small-game" onclick="showScreen('screen-game')">
-            <div class="home-small-icon">🎮</div>
+            <div class="home-small-icon-badge">🎮</div>
             <div class="home-small-title">Main Yuk!</div>
             <div class="home-small-sub">Pilah Sampah<br>Seru! 🗑️</div>
           </button>
