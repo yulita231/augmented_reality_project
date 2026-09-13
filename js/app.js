@@ -99,6 +99,7 @@ const AR_TARGET_INFO = [
    SPA NAVIGATION
    ============================================================ */
 function showScreen(screenId) {
+  stopMateriAudio(); // Stop any ongoing audio when switching screens
   // Special case: going to AR
   if (screenId === 'screen-ar') {
     document.querySelectorAll('.screen.active').forEach(s => {
@@ -390,7 +391,7 @@ function showDetail(type) {
       <p class="detail-section-label">Contoh:</p>
       <div class="detail-chips">${chips}</div>
       <div class="detail-actions">
-        <button class="btn-listen" onclick="speakText('${type}')" id="btn-tts-${type}">
+        <button class="btn-listen" onclick="playMateriAudio('${type}')" id="btn-tts-${type}">
           🔊 Dengarkan
         </button>
         ${nextBtn}
@@ -498,34 +499,122 @@ function getAudioCtx() {
   return chipAudioCtx;
 }
 
+// function playChipSound(label, chipEl) {
+//   // 1. Visual pulse effect on the chip
+//   if (chipEl) {
+//     chipEl.classList.remove('playing');
+//     void chipEl.offsetWidth;
+//     chipEl.classList.add('playing');
+//     setTimeout(() => chipEl.classList.remove('playing'), 600);
+//   }
+
+//   // 2. Energetic 4-note pop melody (Web Audio API) — C5-E5-G5-C6
+//   try {
+//     const ctx = getAudioCtx();
+//     const melody = [
+//       { freq: 523.25, t: 0.00, dur: 0.10 },
+//       { freq: 659.25, t: 0.08, dur: 0.10 },
+//       { freq: 783.99, t: 0.16, dur: 0.10 },
+//       { freq: 1046.5, t: 0.24, dur: 0.18 },
+//     ];
+//     melody.forEach(({ freq, t, dur }) => {
+//       const osc  = ctx.createOscillator();
+//       const gain = ctx.createGain();
+//       osc.type = 'triangle';
+//       osc.frequency.setValueAtTime(freq, ctx.currentTime + t);
+//       gain.gain.setValueAtTime(0, ctx.currentTime + t);
+//       gain.gain.linearRampToValueAtTime(0.38, ctx.currentTime + t + 0.01);
+//       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + dur);
+//       osc.connect(gain);
+//       gain.connect(ctx.destination);
+//       osc.start(ctx.currentTime + t);
+//       osc.stop(ctx.currentTime + t + dur + 0.01);
+//     });
+//   } catch (e) {
+//     console.warn('Audio play failed:', e);
+//   }
+
+//   // 3. Speak using ResponsiveVoice (Indonesian Female — natural teacher voice)
+//   // Fallback to browser SpeechSynthesis if offline / not loaded
+//   const intros = ['Wah, ini ', 'Ini dia ', 'Yuk lihat, ', 'Kita punya '];
+//   const intro   = intros[Math.floor(Math.random() * intros.length)];
+//   const text    = intro + label + '!';
+
+//   setTimeout(() => {
+//     if (typeof responsiveVoice !== 'undefined' && responsiveVoice.voiceSupport()) {
+//       // ✅ ResponsiveVoice — natural Indonesian Female (guru-like)
+//       responsiveVoice.cancel();
+//       responsiveVoice.speak(text, 'Indonesian Female', {
+//         rate:   1.0,    // Clear, normal conversational pace
+//         pitch:  1.1,    // Warm, friendly — not too high, not robotic
+//         volume: 1,
+//         onstart: () => console.log('🔊 RV speaking:', text),
+//       });
+//     } else {
+//       // Fallback: browser TTS
+//       if (!AppState.speechSynth) return;
+//       AppState.speechSynth.cancel();
+//       const utter   = new SpeechSynthesisUtterance(text);
+//       utter.lang    = 'id-ID';
+//       utter.rate    = 1.05;
+//       utter.pitch   = 1.2;
+//       utter.volume  = 1;
+//       const voices  = AppState.speechSynth.getVoices();
+//       const best    =
+//         voices.find(v => v.lang.startsWith('id') && v.localService) ||
+//         voices.find(v => v.lang.startsWith('id')) ||
+//         voices.find(v => v.localService) ||
+//         voices[0];
+//       if (best) utter.voice = best;
+//       AppState.speechSynth.speak(utter);
+//     }
+//   }, 250);
+// }
+
 function playChipSound(label, chipEl) {
-  // 1. Visual pulse effect on the chip
+  if (label === 'Rumput/Ranting'){
+    label = 'RumputRanting';
+  }
   if (chipEl) {
     chipEl.classList.remove('playing');
     void chipEl.offsetWidth;
     chipEl.classList.add('playing');
+
     setTimeout(() => chipEl.classList.remove('playing'), 600);
   }
 
-  // 2. Energetic 4-note pop melody (Web Audio API) — C5-E5-G5-C6
+  // Sound pop tetap menggunakan Web Audio API
   try {
     const ctx = getAudioCtx();
+
     const melody = [
       { freq: 523.25, t: 0.00, dur: 0.10 },
       { freq: 659.25, t: 0.08, dur: 0.10 },
       { freq: 783.99, t: 0.16, dur: 0.10 },
       { freq: 1046.5, t: 0.24, dur: 0.18 },
     ];
+
     melody.forEach(({ freq, t, dur }) => {
-      const osc  = ctx.createOscillator();
+      const osc = ctx.createOscillator();
       const gain = ctx.createGain();
+
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(freq, ctx.currentTime + t);
+
       gain.gain.setValueAtTime(0, ctx.currentTime + t);
-      gain.gain.linearRampToValueAtTime(0.38, ctx.currentTime + t + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + dur);
+      gain.gain.linearRampToValueAtTime(
+        0.38,
+        ctx.currentTime + t + 0.01
+      );
+
+      gain.gain.exponentialRampToValueAtTime(
+        0.001,
+        ctx.currentTime + t + dur
+      );
+
       osc.connect(gain);
       gain.connect(ctx.destination);
+
       osc.start(ctx.currentTime + t);
       osc.stop(ctx.currentTime + t + dur + 0.01);
     });
@@ -533,41 +622,125 @@ function playChipSound(label, chipEl) {
     console.warn('Audio play failed:', e);
   }
 
-  // 3. Speak using ResponsiveVoice (Indonesian Female — natural teacher voice)
-  // Fallback to browser SpeechSynthesis if offline / not loaded
-  const intros = ['Wah, ini ', 'Ini dia ', 'Yuk lihat, ', 'Kita punya '];
-  const intro   = intros[Math.floor(Math.random() * intros.length)];
-  const text    = intro + label + '!';
+  // Suara rekaman sendiri
+  const audio = new Audio(`assets/sounds/${label}.mp3`);
+  audio.volume = 1;
 
   setTimeout(() => {
-    if (typeof responsiveVoice !== 'undefined' && responsiveVoice.voiceSupport()) {
-      // ✅ ResponsiveVoice — natural Indonesian Female (guru-like)
-      responsiveVoice.cancel();
-      responsiveVoice.speak(text, 'Indonesian Female', {
-        rate:   1.0,    // Clear, normal conversational pace
-        pitch:  1.1,    // Warm, friendly — not too high, not robotic
-        volume: 1,
-        onstart: () => console.log('🔊 RV speaking:', text),
-      });
-    } else {
-      // Fallback: browser TTS
-      if (!AppState.speechSynth) return;
-      AppState.speechSynth.cancel();
-      const utter   = new SpeechSynthesisUtterance(text);
-      utter.lang    = 'id-ID';
-      utter.rate    = 1.05;
-      utter.pitch   = 1.2;
-      utter.volume  = 1;
-      const voices  = AppState.speechSynth.getVoices();
-      const best    =
-        voices.find(v => v.lang.startsWith('id') && v.localService) ||
-        voices.find(v => v.lang.startsWith('id')) ||
-        voices.find(v => v.localService) ||
-        voices[0];
-      if (best) utter.voice = best;
-      AppState.speechSynth.speak(utter);
-    }
+    audio.play().catch(e => {
+      console.warn('Voice play failed:', e);
+    });
   }, 250);
+}
+
+
+let currentMateriAudio = null;
+let activeTtsButton = null;
+
+function playMateriAudio(type) {
+  const data = MATERI_DATA[type];
+  if (!data) return;
+
+  const btn = document.getElementById(`btn-tts-${type}`);
+  const fileName = data.title; 
+
+  function setPlaying() {
+    if (btn) {
+      btn.innerHTML = '⏹ Berhenti';
+      btn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+      btn.onclick = () => stopMateriAudio();
+      
+      // Simpan tombol saat ini sebagai tombol aktif
+      activeTtsButton = btn;
+    }
+  }
+
+  function setIdle() {
+    if (btn) {
+      btn.innerHTML = '🔊 Dengarkan';
+      btn.style.background = '';
+      btn.onclick = () => playMateriAudio(type);
+      
+      if (activeTtsButton === btn) {
+        activeTtsButton = null;
+      }
+    }
+  }
+
+  // Hentikan audio yang mungkin sedang berjalan sebelumnya & reset tombol lama
+  stopMateriAudio();
+  setPlaying();
+
+  // ── 1. Memutar Melodi (Web Audio API) ──
+  try {
+    const ctx = getAudioCtx(); 
+    const melody = [
+      { freq: 523.25, t: 0.00, dur: 0.10 },
+      { freq: 659.25, t: 0.08, dur: 0.10 },
+      { freq: 783.99, t: 0.16, dur: 0.10 },
+      { freq: 1046.5, t: 0.24, dur: 0.18 },
+    ];
+
+    melody.forEach(({ freq, t, dur }) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + t);
+
+      gain.gain.setValueAtTime(0, ctx.currentTime + t);
+      gain.gain.linearRampToValueAtTime(0.38, ctx.currentTime + t + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + dur);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(ctx.currentTime + t);
+      osc.stop(ctx.currentTime + t + dur + 0.01);
+    });
+  } catch (e) {
+    console.warn('Audio melody failed:', e);
+  }
+
+  // ── 2. Memutar Rekaman Suara Sendiri (MP3) ──
+  currentMateriAudio = new Audio(`assets/sounds/${fileName}.mp3`);
+  currentMateriAudio.volume = 1;
+
+  currentMateriAudio.onended = () => setIdle();
+  currentMateriAudio.onerror = () => {
+    console.warn(`File audio tidak ditemukan: assets/sounds/${fileName}.mp3`);
+    setIdle();
+  };
+
+  setTimeout(() => {
+    if (currentMateriAudio) {
+      currentMateriAudio.play().catch(e => {
+        console.warn('Voice play failed:', e);
+        setIdle();
+      });
+    }
+  }, 250); 
+}
+
+function stopMateriAudio() {
+  // Hentikan objek Audio jika sedang berjalan
+  if (currentMateriAudio) {
+    currentMateriAudio.pause();
+    currentMateriAudio.currentTime = 0;
+    currentMateriAudio = null;
+  }
+  
+  // Kembalikan tombol aktif sebelumnya ke keadaan semula (jika ada)
+  if (activeTtsButton) {
+    activeTtsButton.innerHTML = '🔊 Dengarkan';
+    activeTtsButton.style.background = '';
+    
+    // Cari kembali 'type' berdasarkan ID tombol (misal: 'btn-tts-sampah' -> 'sampah')
+    const type = activeTtsButton.id.replace('btn-tts-', '');
+    activeTtsButton.onclick = () => playMateriAudio(type);
+    
+    activeTtsButton = null;
+  }
 }
 
 /* ============================================================
