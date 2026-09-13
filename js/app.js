@@ -415,6 +415,7 @@ function showDetail(type) {
    TEXT-TO-SPEECH
    ============================================================ */
 function speakText(type) {
+  console.log('speakText called for type:', type);
   const data = MATERI_DATA[type];
   if (!data) return;
 

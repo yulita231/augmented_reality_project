@@ -49,6 +49,7 @@ const TRASH_ITEMS = [
    ============================================================ */
 let gameAudioCtx = null;
 function getGameAudio() {
+  console.log (gameAudioCtx);
   if (!gameAudioCtx || gameAudioCtx.state === 'closed') {
     gameAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
@@ -98,16 +99,34 @@ function playWrongSound() {
   } catch (e) {}
 }
 
+// function speakItemName(name) {
+//   console.log('speakItemName called with name:', name);
+//   if (typeof responsiveVoice !== 'undefined' && responsiveVoice.voiceSupport()) {
+//     responsiveVoice.cancel();
+//     responsiveVoice.speak(name + '!', 'Indonesian Female', { rate: 1.1, pitch: 1.15, volume: 1 });
+//   } else if (window.speechSynthesis) {
+//     window.speechSynthesis.cancel();
+//     const u = new SpeechSynthesisUtterance(name + '!');
+//     u.lang = 'id-ID'; u.rate = 1.05; u.pitch = 1.2; u.volume = 1;
+//     window.speechSynthesis.speak(u);
+//   }
+// }
+
 function speakItemName(name) {
-  if (typeof responsiveVoice !== 'undefined' && responsiveVoice.voiceSupport()) {
-    responsiveVoice.cancel();
-    responsiveVoice.speak(name + '!', 'Indonesian Female', { rate: 1.1, pitch: 1.15, volume: 1 });
-  } else if (window.speechSynthesis) {
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(name + '!');
-    u.lang = 'id-ID'; u.rate = 1.05; u.pitch = 1.2; u.volume = 1;
-    window.speechSynthesis.speak(u);
+  console.log('speakItemName called with name:', name);
+  
+  // Hentikan audio sebelumnya jika ada
+  if (typeof stopMateriAudio === 'function') {
+    stopMateriAudio();
   }
+
+  // Buat objek Audio berdasarkan nama item yang dikirim
+  const audio = new Audio(`assets/sounds/${name}.mp3`);
+  audio.volume = 1;
+
+  audio.play().catch(e => {
+    console.warn(`File audio tidak ditemukan: assets/sounds/${name}.mp3`, e);
+  });
 }
 
 /* ============================================================
