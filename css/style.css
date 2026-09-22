@@ -88,7 +88,7 @@ button:focus-visible {
   display: none;
   width: 100%;
   min-height: 100vh;
-  position: absolute;
+  /* position: absolute; */
   top: 0;
   left: 0;
   animation: pageIn .3s cubic-bezier(.22, 1, .36, 1) both;
@@ -594,8 +594,8 @@ button:focus-visible {
 }
 
 .home-small-icon-badge {
-  width: 160px;
-  height: 160px;
+  width: 150px;
+  height: 150px;
   background: #fff;
   border-radius: 15px;
   display: flex;

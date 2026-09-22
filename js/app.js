@@ -1042,27 +1042,54 @@ function captureAR() {
   showToast('📸 Foto diambil! (Demo mode)', 2000);
 }
 
+// function playARInfo() {
+//   if (!AppState.speechSynth) {
+//     showToast('Browser tidak mendukung Text-to-Speech');
+//     return;
+//   }
+//   AppState.speechSynth.cancel();
+
+//   const info = AppState.currentARTarget;
+//   let text;
+//   if (info) {
+//     const materi = MATERI_DATA[info.category];
+//     text = `Ini adalah ${info.label}, termasuk sampah ${info.category}. ${materi.tts}`;
+//   } else {
+//     text = 'Arahkan kamera ke gambar marker untuk melihat penjelasannya.';
+//   }
+
+//   const utter = new SpeechSynthesisUtterance(text);
+//   utter.lang = 'id-ID';
+//   utter.rate = 0.85;
+//   utter.pitch = 1.0;
+//   AppState.speechSynth.speak(utter);
+//   showToast('🔊 Memutar penjelasan AR...');
+// }
+
 function playARInfo() {
-  if (!AppState.speechSynth) {
-    showToast('Browser tidak mendukung Text-to-Speech');
-    return;
+  // Hentikan audio sebelumnya jika ada
+  if (typeof stopMateriAudio === 'function') {
+    stopMateriAudio();
   }
-  AppState.speechSynth.cancel();
 
   const info = AppState.currentARTarget;
-  let text;
+  let fileName = '';
+
   if (info) {
-    const materi = MATERI_DATA[info.category];
-    text = `Ini adalah ${info.label}, termasuk sampah ${info.category}. ${materi.tts}`;
+    // Sesuaikan dengan penamaan file audio Anda, misal mengambil dari label atau category
+    fileName = info.label; 
   } else {
-    text = 'Arahkan kamera ke gambar marker untuk melihat penjelasannya.';
+    showToast('Arahkan kamera ke gambar marker terlebih dahulu.');
+    return;
   }
 
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = 'id-ID';
-  utter.rate = 0.85;
-  utter.pitch = 1.0;
-  AppState.speechSynth.speak(utter);
+  const arAudio = new Audio(`assets/sounds/${fileName}.mp3`);
+  arAudio.volume = 1;
+
+  arAudio.play().catch(e => {
+    console.warn(`File audio AR tidak ditemukan: assets/sounds/${fileName}.mp3`, e);
+  });
+
   showToast('🔊 Memutar penjelasan AR...');
 }
 
