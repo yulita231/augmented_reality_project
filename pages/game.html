@@ -1,0 +1,108 @@
+<!-- Game Header -->
+<div class="game-topbar">
+    <button class="game-back-btn" onclick="confirmLeaveGame()" aria-label="Kembali">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <path d="M19 12H5M12 5l-7 7 7 7" />
+        </svg>
+    </button>
+    <!-- Lives (stars) -->
+    <div class="game-lives-row" id="game-lives-row">
+        <span class="game-life">⭐</span>
+        <span class="game-life">⭐</span>
+        <span class="game-life">⭐</span>
+        <span class="game-life">⭐</span>
+        <span class="game-life">⭐</span>
+    </div>
+    <div class="game-timer-badge">
+        <span class="game-timer-icon">⏱</span>
+        <span class="game-timer-num" id="game-timer">60</span>
+    </div>
+</div>
+
+<!-- Game Body -->
+<div id="game-area" class="game-body">
+
+    <!-- Instruction Text -->
+    <div class="game-instruction-text" id="game-instruction-text">
+        Pilih dan pindahkan sampah ke tempat yang benar!
+    </div>
+
+    <!-- Item Row -->
+    <div class="game-item-row" id="trash-item-container">
+        <!-- Start Prompt -->
+        <div class="game-start-prompt" id="game-instruction">
+            <div class="game-start-bubble">
+                <span class="text-3xl mb-2 block">🎮</span>
+                <p>Seret sampah ke tempat yang <strong>benar!</strong></p>
+                <button class="btn-green-main mt-4" onclick="startGame()">Mulai Main! 🚀</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Overlay -->
+    <div id="feedback-overlay" class="feedback-overlay hidden">
+        <div id="feedback-content" class="feedback-content"></div>
+    </div>
+
+    <!-- Game Scene / Bins Area -->
+    <div class="game-scene">
+        <div class="game-ground"></div>
+        <!-- Bins — big basket style -->
+        <div class="game-bins-row">
+
+            <div id="bin-organik" class="game-bin game-bin-organik" ondragover="event.preventDefault()"
+                ondrop="dropItem(event, 'organik')" onclick="clickBin('organik')">
+                <!-- Basket body -->
+                <div class="bin-basket-body bin-green">
+                    <div class="bin-opening bin-opening-green"></div>
+                    <div class="bin-label-area">
+                        <span class="bin-icon-big">🌿</span>
+                        <div class="bin-label-text">ORGANIK</div>
+                    </div>
+                </div>
+                <div class="game-bin-glow-green"></div>
+            </div>
+
+            <div id="bin-anorganik" class="game-bin game-bin-anorganik" ondragover="event.preventDefault()"
+                ondrop="dropItem(event, 'anorganik')" onclick="clickBin('anorganik')">
+                <!-- Basket body -->
+                <div class="bin-basket-body bin-yellow">
+                    <div class="bin-opening bin-opening-yellow"></div>
+                    <div class="bin-label-area">
+                        <span class="bin-icon-big">♻️</span>
+                        <div class="bin-label-text">ANORGANIK</div>
+                    </div>
+                </div>
+                <div class="game-bin-glow-yellow"></div>
+            </div>
+
+        </div>
+
+        <!-- Decorative Trees -->
+        <div class="game-tree game-tree-left">🌳</div>
+        <div class="game-tree game-tree-right">🌳</div>
+    </div>
+
+</div>
+
+<!-- Game Over -->
+<div id="game-over-screen" class="game-over-screen hidden">
+    <div class="game-over-card">
+        <div class="game-over-trophy" id="game-over-trophy">🏆</div>
+        <h3 class="game-over-title" id="game-over-title">Kamu Hebat!</h3>
+        <p class="game-over-sub">Nyawa tersisa:</p>
+        <div class="game-over-score" id="game-over-score" style="font-size:32px;">⭐⭐⭐⭐⭐</div>
+        <div class="game-over-stats">
+            <div class="game-stat-pill green">
+                <span>✅</span>
+                <span id="stat-benar">0 Benar</span>
+            </div>
+            <div class="game-stat-pill red">
+                <span>❌</span>
+                <span id="stat-salah">0 Salah</span>
+            </div>
+        </div>
+        <button class="btn-green-main w-full mb-3" onclick="restartGame()">🔄 Main Lagi</button>
+        <button class="btn-green-outline w-full" onclick="showScreen('screen-home')">🏠 Beranda</button>
+    </div>
+</div>

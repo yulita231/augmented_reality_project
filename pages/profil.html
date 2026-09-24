@@ -1,0 +1,74 @@
+<div class="green-header">
+    <button class="green-back-btn" onclick="showScreen('screen-home')" aria-label="Kembali">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 5l-7 7 7 7" />
+        </svg>
+    </button>
+    <h2 class="green-header-title">Profil Saya</h2>
+    <div class="header-leaf">🌿</div>
+</div>
+
+<div class="profil-body">
+    <div class="profil-avatar-section">
+        <!-- Hidden file input for gallery -->
+        <input type="file" id="avatar-file-input" accept="image/*" style="display:none"
+            onchange="handleAvatarChange(event)">
+        <div class="profil-avatar-ring" onclick="document.getElementById('avatar-file-input').click()"
+            title="Ganti Foto">
+            <img id="profil-avatar-img" class="profil-avatar-img hidden" src="" alt="Foto Profil">
+            <span id="profil-avatar-emoji" class="profil-avatar-emoji">🧒</span>
+            <div class="profil-avatar-camera-hint">📷</div>
+        </div>
+        <button class="profil-change-btn" onclick="document.getElementById('avatar-file-input').click()">📷 Ganti
+            Foto</button>
+
+        <!-- Nama (mode tampil) -->
+        <div class="profil-name-row" id="profil-name-row">
+            <h3 class="profil-name" id="profil-name">EcoKid #1</h3>
+            <button class="profil-edit-name-btn" onclick="startEditUsername()" aria-label="Edit Nama">✏️</button>
+        </div>
+
+        <!-- Nama (mode edit) -->
+        <div class="profil-name-edit-row hidden" id="profil-name-edit-row">
+            <input type="text" id="profil-name-input" class="profil-name-input" maxlength="20"
+                placeholder="Nama kamu..." />
+            <button class="profil-name-save-btn" onclick="saveUsername()" aria-label="Simpan">✔</button>
+            <button class="profil-name-cancel-btn" onclick="cancelEditUsername()" aria-label="Batal">✕</button>
+        </div>
+
+        <p class="profil-tagline">Pejuang Lingkungan Muda 🌿</p>
+        <div class="profil-level-chip">🌱 Level: Pemula</div>
+    </div>
+
+    <div class="profil-stats-row">
+        <div class="profil-stat-card">
+            <span class="text-2xl">🏆</span>
+            <span class="profil-stat-num" id="profil-score">0</span>
+            <span class="profil-stat-label">Total Poin</span>
+        </div>
+        <div class="profil-stat-card">
+            <span class="text-2xl">🎮</span>
+            <span class="profil-stat-num" id="profil-games">0</span>
+            <span class="profil-stat-label">Game</span>
+        </div>
+        <!-- <div class="profil-stat-card">
+            <span class="text-2xl">📖</span>
+            <span class="profil-stat-num" id="profil-materi">0</span>
+            <span class="profil-stat-label">Materi</span>
+          </div> -->
+    </div>
+
+    <h4 class="profil-section-title">Lencana</h4>
+    <div class="profil-badges-row">
+        <div class="profil-badge active"><span>🌱</span><span>Pemula</span></div>
+        <div class="profil-badge locked"><span>🌿</span><span>Pelajar</span></div>
+        <div class="profil-badge locked"><span>🌳</span><span>Ahli</span></div>
+        <div class="profil-badge locked"><span>🌍</span><span>Pahlawan</span></div>
+    </div>
+
+    <h4 class="profil-section-title">Tips Hari Ini 💚</h4>
+    <div class="profil-tip-box">
+        <p>Bawa tas belanja sendiri saat ke pasar. Satu tas kain bisa menggantikan ratusan kantong plastik! 👜</p>
+    </div>
+</div>

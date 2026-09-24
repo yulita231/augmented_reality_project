@@ -1,0 +1,218 @@
+<div class="detail-header"
+     style="background: linear-gradient(160deg, #15803d, #4ade80, #86efac);">
+
+  <button
+    class="detail-back"
+    onclick="showScreen('screen-materi')"
+    aria-label="Kembali">
+
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="3"
+      stroke-linecap="round"
+      stroke-linejoin="round">
+
+      <path d="M19 12H5M12 5l-7 7 7 7"/>
+
+    </svg>
+
+  </button>
+
+
+  <div class="detail-showcase"></div>
+
+
+  <div class="detail-dots">
+
+    <div class="detail-dot active"></div>
+    <div class="detail-dot"></div>
+    <div class="detail-dot"></div>
+
+  </div>
+
+
+  <span class="detail-tag">
+    SAMPAH ORGANIK
+  </span>
+
+</div>
+
+
+<div class="detail-body">
+
+
+  <div
+    class="detail-q-box"
+    style="border-left-color: #22c55e;">
+
+    <p class="detail-q-title">
+      Apa itu Sampah Organik?
+    </p>
+
+    <p class="detail-q-text">
+      Sampah organik adalah sampah alami dari sisa makanan dan tumbuhan!
+      Sampah ini hebat karena bisa hancur sendiri di dalam tanah dan
+      berubah jadi makanan penyubur tanaman! 🌱
+    </p>
+
+  </div>
+
+
+  <p class="detail-section-label">
+    Contoh:
+  </p>
+
+
+  <div class="detail-chips">
+
+
+    <!-- Kulit Pisang -->
+    <div
+      class="detail-chip"
+      onclick="playChipSound('Kulit Pisang', this)">
+
+      <span class="chip-sound-badge">
+        🔊
+      </span>
+
+      <span class="chip-emoji">
+        🍌
+      </span>
+
+      <span class="chip-label">
+        Kulit Pisang
+      </span>
+
+    </div>
+
+
+    <!-- Daun Kering -->
+    <div
+      class="detail-chip"
+      onclick="playChipSound('Daun Kering', this)">
+
+      <span class="chip-sound-badge">
+        🔊
+      </span>
+
+      <span class="chip-emoji">
+        🍂
+      </span>
+
+      <span class="chip-label">
+        Daun Kering
+      </span>
+
+    </div>
+
+
+    <!-- Kulit Buah -->
+    <div
+      class="detail-chip"
+      onclick="playChipSound('Kulit Buah', this)">
+
+      <span class="chip-sound-badge">
+        🔊
+      </span>
+
+      <span class="chip-emoji">
+        🍊
+      </span>
+
+      <span class="chip-label">
+        Kulit Buah
+      </span>
+
+    </div>
+
+
+    <!-- Sisa Nasi -->
+    <div
+      class="detail-chip"
+      onclick="playChipSound('Sisa Nasi', this)">
+
+      <span class="chip-sound-badge">
+        🔊
+      </span>
+
+      <span class="chip-emoji">
+        🍚
+      </span>
+
+      <span class="chip-label">
+        Sisa Nasi
+      </span>
+
+    </div>
+
+
+    <!-- Cangkang Telur -->
+    <div
+      class="detail-chip"
+      onclick="playChipSound('Cangkang Telur', this)">
+
+      <span class="chip-sound-badge">
+        🔊
+      </span>
+
+      <span class="chip-emoji">
+        🥚
+      </span>
+
+      <span class="chip-label">
+        Cangkang Telur
+      </span>
+
+    </div>
+
+
+    <!-- Rumput/Ranting -->
+    <div
+      class="detail-chip"
+      onclick="playChipSound('Rumput Ranting', this)">
+
+      <span class="chip-sound-badge">
+        🔊
+      </span>
+
+      <span class="chip-emoji">
+        🌿
+      </span>
+
+      <span class="chip-label">
+        Rumput/Ranting
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <div class="detail-actions">
+
+    <button
+      class="btn-listen"
+      onclick="playMateriAudio('organik')"
+      id="btn-tts-organik">
+
+      🔊 Dengarkan
+
+    </button>
+
+
+    <button
+      class="btn-green-main"
+      style="flex:1"
+      onclick="showDetail('anorganik')">
+
+      Materi Berikutnya →
+
+    </button>
+
+  </div>
+
+</div>

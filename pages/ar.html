@@ -1,0 +1,152 @@
+<div id="ar-container" class="ar-container">
+
+    <!-- A-Frame Scene -->
+    <!-- Kunci kontak utama (Biarkan seperti aslinya) -->
+    <a-scene id="ar-scene"
+        mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: false; uiLoading: no; uiError: no; uiScanning: no;"
+        color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false"
+        device-orientation-permission-ui="enabled: false" embedded style="width:100%;height:100%;">
+        <!-- Semua model 3D yang sudah tersedia -->
+        <a-assets>
+            <a-asset-item id="model-baterai" src="./assets/models/0-battery.glb"></a-asset-item>
+            <a-asset-item id="model-botol" src="./assets/models/1-bottle.glb"></a-asset-item>
+            <a-asset-item id="model-kaleng" src="./assets/models/2-kaleng.glb"></a-asset-item>
+            <a-asset-item id="model-plastik" src="./assets/models/3-plastic.glb"></a-asset-item>
+        </a-assets>
+
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <!-- Target 0: Baterai (3D) -->
+        <a-entity mindar-image-target="targetIndex: 0">
+            <a-gltf-model id="obj-baterai" src="#model-baterai" scale="0.05 0.05 0.05" position="0 0 0" rotation="0 0 0"
+                visible="false">
+            </a-gltf-model>
+        </a-entity>
+
+        <!-- Target 1: Botol Plastik (3D) -->
+        <a-entity mindar-image-target="targetIndex: 1">
+            <a-gltf-model id="obj-botol" src="#model-botol" scale="0.05 0.05 0.05" position="0 0 0" rotation="0 0 0"
+                visible="false">
+            </a-gltf-model>
+        </a-entity>
+
+        <!-- Target 2: Kaleng (3D) -->
+        <a-entity mindar-image-target="targetIndex: 2">
+            <a-gltf-model id="obj-kaleng" src="#model-kaleng" scale="0.05 0.05 0.05" position="0 0 0" rotation="0 0 0"
+                visible="false">
+            </a-gltf-model>
+        </a-entity>
+
+        <!-- Target 3: Plastik (3D) -->
+        <a-entity mindar-image-target="targetIndex: 3">
+            <a-gltf-model id="obj-plastik" src="#model-plastik" scale="0.05 0.05 0.05" position="0 0 0" rotation="0 0 0"
+                visible="false">
+            </a-gltf-model>
+        </a-entity>
+
+        <!-- Target 4 (Image 5 di Website) -->
+        <a-entity mindar-image-target="targetIndex: 4">
+            <a-image src="./assets/images/4-kemasan-snack.png" position="0 0 0" height="1" width="1"></a-image>
+        </a-entity>
+
+        <!-- Target 5 (Image 6 di Website) -->
+        <a-entity mindar-image-target="targetIndex: 5">
+            <a-image src="./assets/images/5-daun-kering.png" position="0 0 0" height="1" width="1"></a-image>
+        </a-entity>
+
+        <!-- Target 6 (Image 7 di Website) -->
+        <a-entity mindar-image-target="targetIndex: 6">
+            <a-image src="./assets/images/6-kulit-pisang.png" position="0 0 0" height="1" width="1"></a-image>
+        </a-entity>
+
+        <!-- Target 7 (Image 8 di Website) -->
+        <a-entity mindar-image-target="targetIndex: 7">
+            <a-image src="./assets/images/7-kulit-telur.png" position="0 0 0" height="1" width="1"></a-image>
+        </a-entity>
+
+        <!-- Target 8 (Image 9 di Website) -->
+        <a-entity mindar-image-target="targetIndex: 8">
+            <a-image src="./assets/images/8-sisa-makanan.png" position="0 0 0" height="1" width="1"></a-image>
+        </a-entity>
+
+        <!-- Target 9 (Image 10 di Website) -->
+        <a-entity mindar-image-target="targetIndex: 9">
+            <a-image src="./assets/images/9-tulang-ayam.png" position="0 0 0" height="1" width="1"></a-image>
+        </a-entity>
+    </a-scene>
+
+    <!-- AR Overlay -->
+    <div id="ar-overlay" class="ar-overlay">
+        <!-- Top Controls -->
+        <div class="ar-top-row">
+            <button class="ar-round-btn" onclick="stopAR()" aria-label="Kembali">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M19 12H5M12 5l-7 7 7 7" />
+                </svg>
+            </button>
+            <div class="ar-status-pill" id="ar-status">
+                <span class="ar-status-dot"></span>
+                <span>Mencari marker...</span>
+            </div>
+            <button class="ar-round-btn" onclick="playARInfo()" aria-label="Info">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Center Frame -->
+        <div class="ar-center-frame">
+            <div class="ar-corner tl"></div>
+            <div class="ar-corner tr"></div>
+            <div class="ar-corner bl"></div>
+            <div class="ar-corner br"></div>
+            <div class="ar-scan-beam"></div>
+        </div>
+
+        <!-- Info Panel -->
+        <div id="ar-info-panel" class="ar-info-pill hidden">
+            <span class="text-lg">🗑️</span>
+            <div>
+                <p class="text-xs font-black text-green-900">Tempat Sampah Organik</p>
+                <p class="text-xs text-green-700">Terdeteksi!</p>
+            </div>
+            <button onclick="showDetail('organik')" class="ar-pill-btn">Pelajari →</button>
+        </div>
+
+        <!-- Bottom Controls -->
+        <div class="ar-bottom-controls">
+            <button class="ar-ctrl-btn" id="btn-ar-rotate" onclick="toggleARRotate()">
+                <div class="ar-ctrl-circle">🔄</div>
+                <span>Putar</span>
+            </button>
+            <button class="ar-ctrl-btn ar-ctrl-main" id="btn-ar-capture" onclick="captureAR()">
+                <div class="ar-ctrl-circle ar-ctrl-circle-main">📷</div>
+                <span>Kamera</span>
+            </button>
+            <button class="ar-ctrl-btn" id="btn-ar-audio" onclick="playARInfo()">
+                <div class="ar-ctrl-circle">🔊</div>
+                <span>Suara</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- AR Start Overlay -->
+    <div id="ar-start-overlay" class="ar-start-overlay">
+        <div class="ar-start-card">
+            <div class="ar-start-icon">📷</div>
+            <h3 class="ar-start-title">Mode AR Scan</h3>
+            <p class="ar-start-desc">Arahkan kamera ke gambar marker untuk melihat objek 3D muncul!</p>
+            <div class="ar-tips-list">
+                <div class="ar-tip-row"><span>💡</span><span>Pastikan cahaya cukup</span></div>
+                <div class="ar-tip-row"><span>📐</span><span>Jarak 20-30 cm dari marker</span></div>
+                <div class="ar-tip-row"><span>🤚</span><span>Tahan kamera agar stabil</span></div>
+            </div>
+            <button id="btn-start-ar" class="btn-green-main" onclick="startAR()">🚀 Mulai Scan AR</button>
+            <button class="btn-green-outline mt-3" onclick="showScreen('screen-home')">← Kembali</button>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,541 @@
+
+/* ============================================================
+   SCREEN 1 — BERANDA
+   ============================================================ */
+
+/* Hero Section */
+.home-hero {
+  background: linear-gradient(160deg, #2d6a4f 0%, #3a8c4e 45%, #52b069 100%);
+  padding: 64px 20px 62px;
+  position: relative;
+  overflow: hidden;
+}
+
+.home-hero-wave {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 100%;
+  height: 44px;
+  display: block;
+}
+
+.home-hero-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.home-hero-bg::before {
+  content: '';
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  background: rgba(255, 255, 255, .1);
+  border-radius: 50%;
+  top: -60px;
+  right: -50px;
+}
+
+.home-hero-bg::after {
+  content: '';
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  background: rgba(255, 255, 255, .06);
+  border-radius: 50%;
+  bottom: 0;
+  left: -30px;
+}
+
+.home-hero-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  position: relative;
+  z-index: 2;
+}
+
+.home-hero-text {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* padding-bottom: 20px; */
+}
+
+.home-welcome {
+  font-size: 16px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, .9);
+  letter-spacing: .5px;
+  margin-bottom: 4px;
+}
+
+.home-title {
+  font-size: 32px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.1;
+}
+
+.home-title-wordmark {
+  font-family: 'Baloo 2', cursive;
+  font-weight: 800;
+  letter-spacing: .3px;
+}
+
+.wave {
+  display: inline-block;
+  animation: wave 2s ease-in-out infinite;
+}
+
+@keyframes wave {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(-15deg);
+  }
+
+  75% {
+    transform: rotate(15deg);
+  }
+}
+
+.home-subtitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, .95);
+  margin-top: 8px;
+  line-height: 1.55;
+}
+
+.home-subtitle strong {
+  color: #fff;
+  font-weight: 900;
+}
+
+/* Mascot */
+.home-mascot {
+  position: relative;
+  flex-shrink: 0;
+  padding-bottom: 0;
+}
+
+.mascot-char {
+  font-size: 80px;
+  line-height: 1;
+  display: block;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, .2));
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.mascot-bubble {
+  position: absolute;
+  top: -8px;
+  right: -4px;
+  background: rgba(255, 255, 255, .25);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  border: 1.5px solid rgba(255, 255, 255, .4);
+  backdrop-filter: blur(4px);
+  animation: float 2.5s ease-in-out infinite .4s;
+}
+
+/* Burger Menu (pengganti nav Profil) */
+.hero-menu-wrap {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 5;
+}
+
+.hero-burger-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .18);
+  backdrop-filter: blur(6px);
+  border: 1.5px solid rgba(255, 255, 255, .35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: background .15s, transform .15s;
+}
+
+.hero-burger-btn:active {
+  transform: scale(.92);
+}
+
+.hero-burger-avatar-emoji {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.hero-burger-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  position: absolute;
+  inset: 0;
+}
+
+.hero-burger-lines {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  background: var(--green-dark);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.hero-burger-lines span {
+  width: 8px;
+  height: 1.5px;
+  background: #fff;
+  border-radius: 1px;
+  display: block;
+}
+
+.hero-burger-dropdown {
+  position: absolute;
+  top: 52px;
+  right: 0;
+  background: #fff;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 6px;
+  min-width: 170px;
+  overflow: hidden;
+  animation: menuIn .18s cubic-bezier(.34, 1.56, .64, 1) both;
+}
+
+@keyframes menuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.burger-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-dark);
+  transition: background .15s;
+  text-align: left;
+}
+
+.burger-menu-item:hover,
+.burger-menu-item:active {
+  background: var(--green-pale);
+}
+
+.burger-menu-icon {
+  font-size: 17px;
+}
+
+/* Stats bar */
+.home-hero-stats {
+  position: relative;
+  z-index: 2;
+  background: rgba(255, 255, 255, .15);
+  backdrop-filter: blur(8px);
+  border-radius: 14px 14px 0 0;
+  margin: 10px -20px 0;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 8px;
+}
+
+.hero-stat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: rgba(255, 255, 255, .95);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.hero-stat-divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(255, 255, 255, .25);
+}
+
+/* Menu Section — panel cream, menyambung mulus dari wave divider hero */
+.home-menu-section {
+  padding: 22px 16px 20px;
+  background: var(--cream);
+  position: relative;
+}
+
+/* Wide Materi Card — banner ilustratif */
+.home-wide-card {
+  width: 100%;
+  background: linear-gradient(135deg, #ffffff 0%, #eef8f0 100%);
+  border-radius: 22px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  border: none;
+  box-shadow: 0 8px 20px rgba(45, 106, 79, .13);
+  transition: transform .2s cubic-bezier(.34, 1.56, .64, 1), box-shadow .2s;
+  text-align: left;
+}
+
+.home-wide-card:active {
+  transform: scale(.98);
+}
+
+.home-wide-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 26px rgba(45, 106, 79, .2);
+}
+
+.home-wide-icon {
+  width: 76px;
+  height: 76px;
+  background: linear-gradient(135deg, var(--green-pale), var(--green-light));
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  flex-shrink: 0;
+  transform: rotate(-6deg);
+  box-shadow: 0 6px 14px rgba(58, 140, 78, .25);
+}
+
+.home-wide-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.home-wide-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--text-dark);
+}
+
+.home-wide-sub {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-soft);
+  margin-top: 3px;
+}
+
+.home-wide-cta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--green-main);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 9px 13px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(58, 140, 78, .35);
+  transition: background .2s;
+}
+
+.home-wide-card:hover .home-wide-cta {
+  background: var(--green-dark);
+}
+
+/* 2×2 Small Cards */
+.home-small-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.home-small-card {
+  border-radius: 22px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, .08);
+  padding: 18px 15px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  transition: transform .2s cubic-bezier(.34, 1.56, .64, 1), box-shadow .2s;
+  border: none;
+  min-height: 128px;
+}
+
+.home-small-card:active {
+  transform: scale(.95);
+}
+
+.home-small-card:hover {
+  transform: translateY(-3px);
+}
+
+.home-small-icon-badge {
+  width: 150px;
+  height: 150px;
+  background: #fff;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 117px;
+  margin-bottom: 6px;
+  /* transform: rotate(-6deg); */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, .09);
+}
+
+.home-small-title {
+  font-size: 19px;
+  font-weight: 900;
+  color: var(--text-dark);
+  line-height: 1.2;
+}
+
+.home-small-sub {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-soft);
+  line-height: 1.4;
+}
+
+.badge-ar {
+  display: inline-block;
+  background: #7c3aed;
+  color: white;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
+/* Tiles — nada warna senada dengan kartu Belajar Materi di atasnya,
+   pembeda cukup lewat warna badge ikon & aksen teks */
+.home-small-ar {
+  background: linear-gradient(135deg, #ffffff 0%, #eef8f0 100%);
+  box-shadow: 0 8px 18px rgba(45, 106, 79, .13);
+}
+
+.home-small-ar .home-small-icon-badge {
+  background: #ede9fe;
+}
+
+.home-small-ar .home-small-sub {
+  color: #7c3aed;
+}
+
+.home-small-game {
+  background: linear-gradient(135deg, #ffffff 0%, #eef8f0 100%);
+  box-shadow: 0 8px 18px rgba(45, 106, 79, .13);
+}
+
+.home-small-game .home-small-icon-badge {
+  background: #fef3c7;
+  /* transform: rotate(6deg); */
+}
+
+.home-small-game .home-small-sub {
+  color: #b45309;
+}
+
+.home-small-kuis {
+  background: linear-gradient(135deg, #ffffff 0%, #eef8f0 100%);
+  box-shadow: 0 8px 18px rgba(45, 106, 79, .13);
+}
+
+.home-small-kuis .home-small-icon-badge {
+  background: #ffe4ed;
+}
+
+.home-small-kuis .home-small-sub {
+  color: #be123c;
+}
+
+.home-small-profil {
+  background: linear-gradient(135deg, #ffffff 0%, #eef8f0 100%);
+  box-shadow: 0 8px 18px rgba(45, 106, 79, .13);
+}
+
+.home-small-profil .home-small-icon-badge {
+  background: #dbf3fc;
+  transform: rotate(6deg);
+}
+
+.home-small-profil .home-small-sub {
+  color: #0891b2;
+}
+
+/* Fun Fact */
+.fun-fact-strip {
+  background: linear-gradient(135deg, var(--green-pale), #c8e6c9);
+  border: 1.5px solid var(--green-light);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fun-fact-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.fun-fact-text {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--green-dark);
+  transition: opacity .4s;
+}

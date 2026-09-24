@@ -1,0 +1,51 @@
+<!-- Green Header -->
+<div class="green-header">
+    <button class="green-back-btn" onclick="showScreen('screen-home')" aria-label="Kembali">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 5l-7 7 7 7" />
+        </svg>
+    </button>
+    <h2 class="green-header-title">Pilih Materi</h2>
+    <div class="header-leaf">🌿</div>
+</div>
+
+<div class="materi-list-wrap">
+
+    <!-- Sampah Organik -->
+    <button class="materi-list-card" onclick="showDetail('organik')">
+        <div class="materi-list-left" style="background:linear-gradient(150deg,#d4edda,#a8d5b5);">
+            <div class="materi-list-icon-wrap">
+                <span class="materi-big-emoji">🗑️</span>
+            </div>
+            <div class="materi-list-items-row">
+                <span>🥦</span><span>🍌</span><span>🍂</span>
+            </div>
+        </div>
+        <div class="materi-list-body">
+            <span class="materi-tag" style="background:#d4edda;color:#2d6a4f;">Organik</span>
+            <h3 class="materi-list-title">Sampah Organik</h3>
+            <p class="materi-list-desc">Sampah dari makhluk hidup yang bisa terurai alami</p>
+        </div>
+        <div class="materi-list-arrow" style="color:#3a8c4e;">›</div>
+    </button>
+
+    <!-- Sampah Anorganik -->
+    <button class="materi-list-card" onclick="showDetail('anorganik')">
+        <div class="materi-list-left" style="background:linear-gradient(150deg,#fff3cd,#ffd77a);">
+            <div class="materi-list-icon-wrap">
+                <span class="materi-big-emoji">🗑️</span>
+            </div>
+            <div class="materi-list-items-row">
+                <span>🧴</span><span>🥫</span><span>📰</span>
+            </div>
+        </div>
+        <div class="materi-list-body">
+            <span class="materi-tag" style="background:#fff3cd;color:#856404;">Anorganik</span>
+            <h3 class="materi-list-title">Sampah Anorganik</h3>
+            <p class="materi-list-desc">Sampah buatan manusia yang sulit terurai</p>
+        </div>
+        <div class="materi-list-arrow" style="color:#ca8a04;">›</div>
+    </button>
+
+</div>

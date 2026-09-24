@@ -49,7 +49,6 @@ const TRASH_ITEMS = [
    ============================================================ */
 let gameAudioCtx = null;
 function getGameAudio() {
-  console.log (gameAudioCtx);
   if (!gameAudioCtx || gameAudioCtx.state === 'closed') {
     gameAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
@@ -411,3 +410,19 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   console.log('🎮 EcoKids Game (Lives Mode) — loaded!');
 });
+
+
+/* ============================================================
+   GAME LEAVE CONFIRMATION
+   ============================================================ */
+function confirmLeaveGame() {
+  // Check if game is running
+  if (window.GameState && window.GameState.running) {
+    if (confirm('⚠️ Game sedang berjalan! Yakin ingin keluar? Progres akan hilang.')) {
+      if (typeof stopGame === 'function') stopGame();
+      showScreen('screen-home');
+    }
+  } else {
+    showScreen('screen-home');
+  }
+}

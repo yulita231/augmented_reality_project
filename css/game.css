@@ -1,0 +1,508 @@
+
+/* ============================================================
+   SCREEN 5 — GAME
+   ============================================================ */
+
+/* Top bar */
+.game-topbar {
+  background: linear-gradient(135deg, var(--green-dark), var(--green-main));
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.game-back-btn {
+  width: 34px;
+  height: 34px;
+  background: rgba(255, 255, 255, .18);
+  border: 1.5px solid rgba(255, 255, 255, .3);
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .15s;
+}
+
+.game-back-btn:active {
+  transform: scale(.9);
+}
+
+/* Lives row — stars in topbar */
+.game-lives-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(255,255,255,.18);
+  backdrop-filter: blur(4px);
+  border-radius: var(--radius-pill);
+  padding: 6px 12px;
+}
+
+.game-life {
+  font-size: 18px;
+  line-height: 1;
+  transition: opacity .2s, transform .2s;
+  display: inline-block;
+}
+
+@keyframes liveShake {
+  0%,100% { transform: translateX(0); }
+  25%      { transform: translateX(-5px); }
+  75%      { transform: translateX(5px); }
+}
+
+.game-timer-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, .15);
+  backdrop-filter: blur(4px);
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+}
+
+.game-timer-icon {
+  font-size: 14px;
+}
+
+.game-timer-num {
+  font-size: 18px;
+  font-weight: 900;
+  color: white;
+  font-family: 'Baloo 2', cursive;
+  line-height: 1;
+  transition: transform .2s;
+}
+
+/* Game body */
+.game-body {
+  min-height: calc(100vh - 56px - var(--nav-h));
+  background: linear-gradient(180deg, #edf7ef 0%, #d4edda 60%, #b6dfc0 100%);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Instruction text */
+.game-instruction-text {
+  text-align: center;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--green-dark);
+  padding: 12px 20px 4px;
+  background: rgba(255, 255, 255, .6);
+  border-bottom: 1.5px solid rgba(168, 213, 181, .5);
+}
+
+/* Item row — center 2 big items */
+.game-item-row {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 20px 20px 10px;
+  min-height: 160px;
+}
+
+/* Start prompt */
+.game-start-prompt {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.game-start-bubble {
+  background: white;
+  border-radius: 20px;
+  box-shadow: var(--shadow-md);
+  border: 2px solid var(--green-light);
+  padding: 22px 24px;
+  text-align: center;
+  max-width: 280px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-med);
+}
+
+/* Trash item card — bigger for kids */
+.trash-item {
+  background: white;
+  border-radius: 22px;
+  padding: 18px 16px 14px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.14);
+  cursor: grab;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  border: 2.5px solid transparent;
+  user-select: none;
+  min-width: 110px;
+  max-width: 135px;
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, border-color .2s;
+  animation: itemPop .4s cubic-bezier(.34,1.56,.64,1) both;
+}
+
+.trash-item:active {
+  cursor: grabbing;
+  transform: scale(1.12) rotate(4deg);
+  box-shadow: 0 14px 32px rgba(0,0,0,.22);
+}
+
+.trash-item.selected {
+  border-color: var(--green-main);
+  box-shadow: 0 0 0 4px rgba(58,140,78,.25);
+  transform: scale(1.08);
+}
+
+@keyframes itemPop {
+  from { opacity:0; transform: scale(.4) rotate(-12deg); }
+  to   { opacity:1; transform: none; }
+}
+
+.trash-item-emoji {
+  font-size: 72px;
+  line-height: 1;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,.15));
+}
+
+.trash-item-name {
+  font-size: 12.5px;
+  font-weight: 900;
+  color: var(--text-dark);
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* Game scene (bottom) */
+.game-scene {
+  position: relative;
+  padding: 0 12px 16px;
+}
+
+.game-ground {
+  height: 16px;
+  background: linear-gradient(to bottom, #8bc34a, #6a9e30);
+  border-radius: 0;
+  margin: 0 -12px;
+  margin-bottom: -4px;
+}
+
+.game-bins-row {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding-top: 8px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Trash bin (game) */
+.game-bin {
+  flex: 1;
+  max-width: 160px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1);
+  position: relative;
+}
+
+.game-bin:active {
+  transform: scale(.95);
+}
+
+/* ── Big Basket Style Bins ── */
+.bin-basket-body {
+  width: 100%;
+  border-radius: 12px 12px 20px 20px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  position: relative;
+  transition: box-shadow .2s, transform .2s;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,.18);
+}
+
+/* Opening/rim at top */
+.bin-opening {
+  width: 108%;
+  height: 22px;
+  border-radius: 8px 8px 0 0;
+  margin-bottom: 0;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 3px 8px rgba(0,0,0,.2);
+}
+
+.bin-opening-green {
+  background: linear-gradient(135deg, #2e9e52, #1d6b35);
+}
+
+.bin-opening-yellow {
+  background: linear-gradient(135deg, #f5a623, #c97f05);
+}
+
+/* Big label area inside bin */
+.bin-label-area {
+  width: 100%;
+  padding: 18px 8px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.bin-icon-big {
+  font-size: 42px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.2));
+}
+
+.bin-label-text {
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+/* Green bin */
+.bin-green {
+  background: linear-gradient(180deg, #3cb86a 0%, #27963e 100%);
+  border: 3px solid #1d6b2c;
+}
+.bin-green .bin-label-text  { color: #e8ffe0; }
+.bin-green .bin-icon-big    { filter: drop-shadow(0 2px 6px rgba(0,80,0,.3)); }
+
+/* Yellow bin */
+.bin-yellow {
+  background: linear-gradient(180deg, #f5c842 0%, #d4930a 100%);
+  border: 3px solid #b07a00;
+}
+.bin-yellow .bin-label-text { color: #3d2200; }
+
+/* Drag-active glow */
+.game-bin.drag-active .bin-basket-body {
+  transform: scale(1.06);
+  box-shadow: 0 0 0 4px rgba(255,255,255,.6), 0 12px 32px rgba(0,0,0,.25);
+}
+
+.game-bin-glow-green,
+.game-bin-glow-yellow {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 18px;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity .3s;
+}
+
+.game-bin-glow-green {
+  background: radial-gradient(ellipse, rgba(58,140,78,.5) 0%, transparent 70%);
+}
+
+.game-bin-glow-yellow {
+  background: radial-gradient(ellipse, rgba(212,160,23,.5) 0%, transparent 70%);
+}
+
+.game-bin.drag-active .game-bin-glow-green,
+.game-bin.drag-active .game-bin-glow-yellow {
+  opacity: 1;
+}
+
+/* Decorative trees */
+.game-tree {
+  position: absolute;
+  font-size: 42px;
+  bottom: 18px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .15));
+  z-index: 1;
+}
+
+.game-tree-left {
+  left: -4px;
+}
+
+.game-tree-right {
+  right: -4px;
+}
+
+/* Feedback */
+.feedback-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.feedback-content {
+  border-radius: 20px;
+  padding: 18px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  box-shadow: var(--shadow-lg);
+}
+
+.feedback-correct {
+  background: linear-gradient(135deg, #d4edda, #a8d5b5);
+  border: 3px solid var(--green-main);
+  animation: fbBounce .5s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.feedback-wrong {
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  border: 3px solid #ef4444;
+  animation: fbShake .4s ease;
+}
+
+@keyframes fbBounce {
+  from {
+    transform: scale(0) rotate(-10deg);
+    opacity: 0;
+  }
+
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes fbShake {
+
+  0%,
+  100% {
+    transform: none;
+  }
+
+  20% {
+    transform: translateX(-10px);
+  }
+
+  40% {
+    transform: translateX(10px);
+  }
+
+  60% {
+    transform: translateX(-7px);
+  }
+
+  80% {
+    transform: translateX(7px);
+  }
+}
+
+/* Game Over */
+.game-over-screen {
+  position: absolute;
+  inset: 0;
+  background: rgba(242, 249, 244, .97);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 60;
+  backdrop-filter: blur(8px);
+}
+
+.game-over-card {
+  background: white;
+  border-radius: 28px;
+  padding: 30px 22px;
+  text-align: center;
+  width: 100%;
+  max-width: 330px;
+  box-shadow: var(--shadow-lg);
+  animation: pageIn .5s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.game-over-trophy {
+  font-size: 60px;
+  margin-bottom: 10px;
+  animation: trophyIn .7s cubic-bezier(.34, 1.56, .64, 1) .2s both;
+}
+
+@keyframes trophyIn {
+  from {
+    transform: scale(0) translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.game-over-title {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--text-dark);
+  margin-bottom: 4px;
+}
+
+.game-over-sub {
+  font-size: 13px;
+  color: var(--text-soft);
+  font-weight: 600;
+}
+
+.game-over-score {
+  font-size: 52px;
+  font-weight: 900;
+  color: var(--green-main);
+  font-family: 'Baloo 2', cursive;
+  line-height: 1.1;
+}
+
+.game-over-stars {
+  font-size: 26px;
+  letter-spacing: 4px;
+  margin: 4px 0 16px;
+}
+
+.game-over-stats {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.game-stat-pill {
+  flex: 1;
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.game-stat-pill.green {
+  background: var(--green-pale);
+  color: var(--green-dark);
+}
+
+.game-stat-pill.red {
+  background: #fee2e2;
+  color: #b91c1c;
+}

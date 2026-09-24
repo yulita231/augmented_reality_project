@@ -1,0 +1,70 @@
+<div class="home-hero">
+  <div class="home-hero-bg"></div>
+  <!-- Burger Menu (pengganti nav Profil) -->
+  <div class="hero-menu-wrap">
+    <button id="btn-burger-menu" class="hero-burger-btn" onclick="toggleBurgerMenu(event)" aria-label="Menu">
+      <span id="profil-avatar-emoji-mini" class="hero-burger-avatar-emoji">🧒</span>
+      <img id="profil-avatar-img-mini" class="hero-burger-avatar-img hidden" src="" alt="">
+      <span class="hero-burger-lines">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    </button>
+    <div id="burger-menu-dropdown" class="hero-burger-dropdown hidden">
+      <button class="burger-menu-item" onclick="closeBurgerMenu(); showScreen('screen-profil')">
+        <span class="burger-menu-icon">👤</span>
+        <span>Profil Saya</span>
+      </button>
+    </div>
+  </div>
+  <div class="home-hero-content">
+    <div class="home-hero-text">
+      <p class="home-welcome">Selamat Datang! 🌞</p>
+      <h1 class="home-title home-title-wordmark">EcoKids AR <span class="wave">👋</span>
+      </h1>
+      <p class="home-subtitle">Yuk, kita <strong>belajar bareng</strong>
+        <br>menjaga bumi kita! 🌍
+      </p>
+    </div>
+    <div class="home-mascot">
+      <div class="mascot-bubble">🌿</div>
+      <div class="mascot-char">🧒</div>
+    </div>
+  </div>
+  <!-- Status bar inside hero -->
+  <!-- <div class="home-hero-stats"><div class="hero-stat"><span>🏆</span><span id="home-score">0 Poin</span></div><div class="hero-stat-divider"></div><div class="hero-stat"><span>📚</span><span>4 Materi</span></div><div class="hero-stat-divider"></div><div class="hero-stat"><span>✅</span><span id="home-done">0 Selesai</span></div></div> -->
+  <!-- Wave divider — transisi organik ke panel konten -->
+  <svg class="home-hero-wave" viewBox="0 0 500 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M0,34 C 60,58 120,4 180,26 C 240,48 300,6 365,28 C 415,46 460,12 500,24 L500,60 L0,60 Z" fill="#F2F9F4" />
+  </svg>
+</div>
+<!-- Menu Section -->
+<div class="home-menu-section">
+  <!-- MATERI -->
+  <button id="btn-home-materi" class="home-wide-card" onclick="showScreen('screen-materi')">
+    <div class="home-wide-icon"> 📖 </div>
+    <div class="home-wide-body">
+      <h3 class="home-wide-title"> Belajar Materi </h3>
+      <p class="home-wide-sub"> Kenali sampah &amp; cara memilahnya </p>
+    </div>
+    <div class="home-wide-cta">
+      <span>Mulai</span>
+      <span>→</span>
+    </div>
+  </button>
+  <!-- AR + GAME -->
+  <div class="home-small-grid">
+    <button id="btn-home-ar" class="home-small-card home-small-ar" onclick="showScreen('screen-ar')">
+      <div class="home-small-icon-badge"> 📷 </div>
+      <div class="home-small-title"> Lihat AR! </div>
+      <div class="home-small-sub"> Objek 3D <br> Keren! <span class="badge-ar">AR</span>
+      </div>
+    </button>
+    <button id="btn-home-game" class="home-small-card home-small-game" onclick="showScreen('screen-game')">
+      <div class="home-small-icon-badge"> 🎮 </div>
+      <div class="home-small-title"> Main Yuk! </div>
+      <div class="home-small-sub"> Pilah Sampah <br> Seru! 🗑️ </div>
+    </button>
+  </div>
+</div>
