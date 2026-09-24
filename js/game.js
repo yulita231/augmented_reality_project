@@ -10,15 +10,15 @@
    GAME STATE
    ============================================================ */
 window.GameState = {
-  running:       false,
-  lives:         5,
-  timer:         60,
+  running: false,
+  lives: 5,
+  timer: 60,
   timerInterval: null,
   spawnInterval: null,
-  correctCount:  0,
-  wrongCount:    0,
-  selectedItem:  null,
-  currentItems:  [],
+  correctCount: 0,
+  wrongCount: 0,
+  selectedItem: null,
+  currentItems: [],
   itemIdCounter: 0,
 };
 
@@ -26,22 +26,22 @@ window.GameState = {
    TRASH ITEMS DATA
    ============================================================ */
 const TRASH_ITEMS = [
-  { id: 'pisang',  emoji: '🍌', name: 'Kulit Pisang',   type: 'organik'   },
-  { id: 'daun',    emoji: '🍂', name: 'Daun Kering',    type: 'organik'   },
-  { id: 'apel',    emoji: '🍎', name: 'Sisa Apel',      type: 'organik'   },
-  { id: 'wortel',  emoji: '🥕', name: 'Kulit Wortel',   type: 'organik'   },
-  { id: 'nasi',    emoji: '🍚', name: 'Sisa Nasi',      type: 'organik'   },
-  { id: 'telur',   emoji: '🥚', name: 'Cangkang Telur', type: 'organik'   },
-  { id: 'sayur',   emoji: '🥬', name: 'Sisa Sayur',     type: 'organik'   },
-  { id: 'jeruk',   emoji: '🍊', name: 'Kulit Jeruk',    type: 'organik'   },
-  { id: 'botol',   emoji: '🧴', name: 'Botol Plastik',  type: 'anorganik' },
-  { id: 'kaleng',  emoji: '🥫', name: 'Kaleng',         type: 'anorganik' },
-  { id: 'kresek',  emoji: '🛍️', name: 'Kantong Plastik',type: 'anorganik' },
-  { id: 'kertas',  emoji: '📰', name: 'Kertas Bekas',   type: 'anorganik' },
-  { id: 'baterai', emoji: '🔋', name: 'Baterai',        type: 'anorganik' },
-  { id: 'kaca',    emoji: '🪟', name: 'Pecahan Kaca',   type: 'anorganik' },
-  { id: 'sedotan', emoji: '🥤', name: 'Gelas Plastik',  type: 'anorganik' },
-  { id: 'logam',   emoji: '⚙️', name: 'Potongan Logam', type: 'anorganik' },
+  { id: 'pisang', emoji: '🍌', name: 'Kulit Pisang', type: 'organik' },
+  { id: 'daun', emoji: '🍂', name: 'Daun Kering', type: 'organik' },
+  { id: 'apel', emoji: '🍎', name: 'Sisa Apel', type: 'organik' },
+  { id: 'wortel', emoji: '🥕', name: 'Kulit Wortel', type: 'organik' },
+  { id: 'nasi', emoji: '🍚', name: 'Sisa Nasi', type: 'organik' },
+  { id: 'telur', emoji: '🥚', name: 'Cangkang Telur', type: 'organik' },
+  { id: 'sayur', emoji: '🥬', name: 'Sisa Sayur', type: 'organik' },
+  { id: 'jeruk', emoji: '🍊', name: 'Kulit Jeruk', type: 'organik' },
+  { id: 'botol', emoji: '🧴', name: 'Botol Plastik', type: 'anorganik' },
+  { id: 'kaleng', emoji: '🥫', name: 'Kaleng', type: 'anorganik' },
+  { id: 'kresek', emoji: '🛍️', name: 'Kantong Plastik', type: 'anorganik' },
+  { id: 'kertas', emoji: '📰', name: 'Kertas Bekas', type: 'anorganik' },
+  { id: 'baterai', emoji: '🔋', name: 'Baterai', type: 'anorganik' },
+  { id: 'kaca', emoji: '🪟', name: 'Pecahan Kaca', type: 'anorganik' },
+  { id: 'sedotan', emoji: '🥤', name: 'Gelas Plastik', type: 'anorganik' },
+  { id: 'logam', emoji: '⚙️', name: 'Potongan Logam', type: 'anorganik' },
 ];
 
 /* ============================================================
@@ -66,13 +66,13 @@ function playSelectSound() {
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
     osc.connect(gain); gain.connect(ctx.destination);
     osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.15);
-  } catch (e) {}
+  } catch (e) { }
 }
 
 function playCorrectSound() {
   try {
     const ctx = getGameAudio();
-    [[523,0],[659,0.10],[784,0.20],[1047,0.30]].forEach(([f,t]) => {
+    [[523, 0], [659, 0.10], [784, 0.20], [1047, 0.30]].forEach(([f, t]) => {
       const osc = ctx.createOscillator(), gain = ctx.createGain();
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(f, ctx.currentTime + t);
@@ -82,7 +82,7 @@ function playCorrectSound() {
       osc.connect(gain); gain.connect(ctx.destination);
       osc.start(ctx.currentTime + t); osc.stop(ctx.currentTime + t + 0.25);
     });
-  } catch (e) {}
+  } catch (e) { }
 }
 
 function playWrongSound() {
@@ -95,25 +95,12 @@ function playWrongSound() {
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
     osc.connect(gain); gain.connect(ctx.destination);
     osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.35);
-  } catch (e) {}
+  } catch (e) { }
 }
 
-// function speakItemName(name) {
-//   console.log('speakItemName called with name:', name);
-//   if (typeof responsiveVoice !== 'undefined' && responsiveVoice.voiceSupport()) {
-//     responsiveVoice.cancel();
-//     responsiveVoice.speak(name + '!', 'Indonesian Female', { rate: 1.1, pitch: 1.15, volume: 1 });
-//   } else if (window.speechSynthesis) {
-//     window.speechSynthesis.cancel();
-//     const u = new SpeechSynthesisUtterance(name + '!');
-//     u.lang = 'id-ID'; u.rate = 1.05; u.pitch = 1.2; u.volume = 1;
-//     window.speechSynthesis.speak(u);
-//   }
-// }
 
 function speakItemName(name) {
-  console.log('speakItemName called with name:', name);
-  
+
   // Hentikan audio sebelumnya jika ada
   if (typeof stopMateriAudio === 'function') {
     stopMateriAudio();
@@ -154,14 +141,14 @@ function startGame() {
 
   updateLivesUI(); updateTimerUI();
 
-  const container   = document.getElementById('trash-item-container');
+  const container = document.getElementById('trash-item-container');
   const instruction = document.getElementById('game-instruction');
-  const gameOver    = document.getElementById('game-over-screen');
-  const instrText   = document.getElementById('game-instruction-text');
+  const gameOver = document.getElementById('game-over-screen');
+  const instrText = document.getElementById('game-instruction-text');
 
   if (instruction) instruction.style.display = 'none';
-  if (gameOver)    gameOver.classList.add('hidden');
-  if (instrText)   instrText.style.display = 'block';
+  if (gameOver) gameOver.classList.add('hidden');
+  if (instrText) instrText.style.display = 'block';
   if (container) {
     Array.from(container.children).forEach(c => { if (c.id !== 'game-instruction') c.remove(); });
   }
@@ -207,7 +194,7 @@ function spawnItem() {
   if (!pool.length) return;
 
   const template = pool[Math.floor(Math.random() * pool.length)];
-  const uid      = `item-${GameState.itemIdCounter++}`;
+  const uid = `item-${GameState.itemIdCounter++}`;
   GameState.currentItems.push({ ...template, uid, templateId: template.id });
 
   const container = document.getElementById('trash-item-container');
@@ -224,8 +211,8 @@ function spawnItem() {
 
   el.addEventListener('click', () => { playSelectSound(); speakItemName(template.name); selectItem(uid); });
   el.addEventListener('touchstart', handleTouchStart, { passive: true });
-  el.addEventListener('touchmove',  handleTouchMove,  { passive: false });
-  el.addEventListener('touchend',   handleTouchEnd,   { passive: true });
+  el.addEventListener('touchmove', handleTouchMove, { passive: false });
+  el.addEventListener('touchend', handleTouchEnd, { passive: true });
   el.addEventListener('dragstart', e => {
     e.dataTransfer.setData('text/plain', uid);
     el.style.opacity = '0.5'; GameState.selectedItem = uid;
@@ -255,10 +242,10 @@ function handleTouchMove(e) {
   e.preventDefault(); if (!touchClone) return;
   const t = e.touches[0];
   touchClone.style.left = `${t.clientX - touchOffsetX}px`; touchClone.style.top = `${t.clientY - touchOffsetY}px`;
-  ['bin-organik','bin-anorganik'].forEach(id => {
+  ['bin-organik', 'bin-anorganik'].forEach(id => {
     const b = document.getElementById(id); if (!b) return;
     const r = b.getBoundingClientRect();
-    b.classList.toggle('drag-active', t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom);
+    b.classList.toggle('drag-active', t.clientX >= r.left && t.clientX <= r.right && t.clientY >= r.top && t.clientY <= r.bottom);
   });
 }
 
@@ -266,11 +253,11 @@ function handleTouchEnd(e) {
   if (!touchDragEl || !touchClone) return;
   const touch = e.changedTouches[0], uid = touchDragEl.getAttribute('data-uid');
   let dropped = false;
-  for (const binId of ['bin-organik','bin-anorganik']) {
+  for (const binId of ['bin-organik', 'bin-anorganik']) {
     const b = document.getElementById(binId); if (!b) continue;
     const r = b.getBoundingClientRect();
-    if (touch.clientX>=r.left&&touch.clientX<=r.right&&touch.clientY>=r.top&&touch.clientY<=r.bottom) {
-      processItemDrop(uid, binId.replace('bin-',''));  dropped = true; break;
+    if (touch.clientX >= r.left && touch.clientX <= r.right && touch.clientY >= r.top && touch.clientY <= r.bottom) {
+      processItemDrop(uid, binId.replace('bin-', '')); dropped = true; break;
     }
   }
   touchClone.remove(); touchClone = null;
@@ -361,10 +348,10 @@ function showFeedback(correct, emoji) {
    BINS
    ============================================================ */
 function highlightBins(active) {
-  ['bin-organik','bin-anorganik'].forEach(id => { const b = document.getElementById(id); if (b) b.classList.toggle('drag-active', active); });
+  ['bin-organik', 'bin-anorganik'].forEach(id => { const b = document.getElementById(id); if (b) b.classList.toggle('drag-active', active); });
 }
 function clearBinHighlights() {
-  ['bin-organik','bin-anorganik'].forEach(id => { const b = document.getElementById(id); if (b) b.classList.remove('drag-active'); });
+  ['bin-organik', 'bin-anorganik'].forEach(id => { const b = document.getElementById(id); if (b) b.classList.remove('drag-active'); });
 }
 
 /* ============================================================
@@ -372,18 +359,38 @@ function clearBinHighlights() {
    ============================================================ */
 function endGame() {
   stopGame();
-  if (typeof AppState !== 'undefined') AppState.gamesPlayed++;
 
-  const lives = GameState.lives, correct = GameState.correctCount;
+  // ============================================================
+  // UPDATE JUMLAH GAME DIMAINKAN
+  // ============================================================
+  let gamesPlayed = parseInt(
+    localStorage.getItem('ecokids-games-played') || '0',
+    10
+  );
+
+  gamesPlayed++;
+
+  localStorage.setItem(
+    'ecokids-games-played',
+    gamesPlayed
+  );
+
+  // Sinkronkan juga ke AppState
+  if (typeof AppState !== 'undefined') {
+    AppState.gamesPlayed = gamesPlayed;
+  }
+
+  const lives = GameState.lives;
+  const correct = GameState.correctCount;
   let trophy = '💔', title = 'Coba Lagi Ya!';
-  if (lives >= 4 && correct >= 6)      { trophy = '🏆'; title = 'Luar Biasa!'; }
+  if (lives >= 4 && correct >= 6) { trophy = '🏆'; title = 'Luar Biasa!'; }
   else if (lives >= 2 && correct >= 3) { trophy = '🥈'; title = 'Bagus Sekali!'; }
-  else if (lives >= 1)                 { trophy = '🥉'; title = 'Terus Berlatih!'; }
+  else if (lives >= 1) { trophy = '🥉'; title = 'Terus Berlatih!'; }
 
   const starsStr = '⭐'.repeat(lives) + '🖤'.repeat(5 - lives);
   document.getElementById('game-over-trophy').textContent = trophy;
-  document.getElementById('game-over-title').textContent  = title;
-  document.getElementById('game-over-score').textContent  = starsStr || '💔';
+  document.getElementById('game-over-title').textContent = title;
+  document.getElementById('game-over-score').textContent = starsStr || '💔';
   document.getElementById('stat-benar').textContent = `${GameState.correctCount} Benar`;
   document.getElementById('stat-salah').textContent = `${GameState.wrongCount} Salah`;
 
@@ -403,7 +410,7 @@ function restartGame() {
    INIT
    ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
-  ['bin-organik','bin-anorganik'].forEach(id => {
+  ['bin-organik', 'bin-anorganik'].forEach(id => {
     const b = document.getElementById(id); if (!b) return;
     b.addEventListener('dragenter', () => { if (GameState.selectedItem) b.classList.add('drag-active'); });
     b.addEventListener('dragleave', () => b.classList.remove('drag-active'));

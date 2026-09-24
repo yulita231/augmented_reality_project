@@ -96,86 +96,77 @@ async function loadPage(screenId) {
 
 async function showScreen(screenId, skipLoad = false) {
 
-  /* ========================================================
-     LOAD PAGE
-  ======================================================== */
-
   if (!skipLoad) {
     await loadPage(screenId);
   }
 
-
-  /* ========================================================
-     SEMBUNYIKAN SEMUA SCREEN
-  ======================================================== */
-
+  // Sembunyikan semua screen
   document.querySelectorAll('.screen').forEach(screen => {
     screen.classList.remove('active');
   });
 
-
-  /* ========================================================
-     CARI SCREEN TUJUAN
-  ======================================================== */
-
+  // Cari screen tujuan
   const targetScreen = document.getElementById(screenId);
 
   if (!targetScreen) {
-
-    console.error(
-      `Target screen tidak ditemukan: ${screenId}`
-    );
-
+    console.error(`Target screen tidak ditemukan: ${screenId}`);
     return;
   }
 
-
-  /* ========================================================
-     TAMPILKAN SCREEN
-  ======================================================== */
-
+  // Tampilkan screen
   targetScreen.classList.add('active');
+
+  if (typeof loadAvatarMini === 'function') {
+    loadAvatarMini();
+  }
 
 
   /* ========================================================
      SCREEN-SPECIFIC INITIALIZATION
-  ======================================================== */
+     ======================================================== */
 
+  // HOME
+  if (screenId === 'screen-home') {
+    updateHomeStats();
+  }
+
+
+  // PROFIL
   if (screenId === 'screen-profil') {
+
+    // Pastikan HTML profil sudah ada
+    loadUsername();
+    loadAvatar();
+    updateProfilStats();
 
     if (typeof initProfil === 'function') {
       initProfil();
     }
-
   }
 
 
+  // GAME
   if (screenId === 'screen-game') {
-
     if (typeof initGame === 'function') {
       initGame();
     }
-
   }
 
 
+  // AR
   if (screenId === 'screen-ar') {
-
     if (typeof initAR === 'function') {
       initAR();
     }
-
   }
 
 
+  // MATERI
   if (screenId === 'screen-materi') {
-
     if (typeof initMateri === 'function') {
       initMateri();
     }
-
   }
-
 }
 
 
@@ -183,13 +174,13 @@ async function showScreen(screenId, skipLoad = false) {
    INITIAL APP
 ============================================================ */
 
-document.addEventListener('DOMContentLoaded', async () => {
+// document.addEventListener('DOMContentLoaded', async () => {
 
-  console.log('EcoKids App Starting...');
+//   console.log('EcoKids App Starting...');
 
-  await showScreen('screen-home');
+//   await showScreen('screen-home');
 
-});
+// });
 
 
 
@@ -200,7 +191,10 @@ const AppState = {
   currentScreen: 'home',
   totalScore: 0,
   completedMateri: [],
-  gamesPlayed: 0,
+  gamesPlayed: parseInt(
+    localStorage.getItem('ecokids-games-played') || '0',
+    10
+  ),
   arRunning: false,
   arRotating: false,
   arSystem: null,
@@ -223,56 +217,6 @@ const FUN_FACTS = [
 /* ============================================================
    SPA NAVIGATION
    ============================================================ */
-// function showScreen(screenId) {
-//   stopMateriAudio(); // Stop any ongoing audio when switching screens
-//   // Special case: going to AR
-//   if (screenId === 'screen-ar') {
-//     document.querySelectorAll('.screen.active').forEach(s => {
-//       s.classList.remove('active');
-//     });
-//     const arScreen = document.getElementById('screen-ar');
-//     arScreen.classList.add('active');
-//     AppState.currentScreen = 'ar';
-//     updateNav('ar');
-//     return;
-//   }
-
-//   // Stop AR if leaving (cleanup saja, tanpa memaksa pindah ke Beranda —
-//   // supaya tidak menimpa layar tujuan yang sedang dituju)
-//   if (AppState.arRunning) stopARInternal();
-
-//   // Hide all screens
-//   document.querySelectorAll('.screen.active').forEach(s => {
-//     s.classList.remove('active');
-//   });
-
-//   // Show target screen
-//   const target = document.getElementById(screenId);
-//   if (target) {
-//     target.classList.add('active');
-//     AppState.currentScreen = screenId.replace('screen-', '');
-//     window.scrollTo(0, 0);
-//   }
-
-//   // Update nav
-//   const navMap = {
-//     'screen-home': 'home',
-//     'screen-materi': 'materi',
-//     'screen-ar': 'ar',
-//     'screen-game': 'game',
-//     'screen-profil': 'profil',
-//     'screen-detail': null,
-//   };
-//   if (navMap[screenId]) updateNav(navMap[screenId]);
-
-//   // Update profil stats
-//   if (screenId === 'screen-profil') {
-//     updateProfilStats();
-//     loadAvatar();
-//     loadUsername();
-//   }
-//   if (screenId === 'screen-home') updateHomeStats();
-// }
 
 function navTo(section) {
   const screenMap = {
@@ -380,77 +324,6 @@ function getAudioCtx() {
   return chipAudioCtx;
 }
 
-// function playChipSound(label, chipEl) {
-//   // 1. Visual pulse effect on the chip
-//   if (chipEl) {
-//     chipEl.classList.remove('playing');
-//     void chipEl.offsetWidth;
-//     chipEl.classList.add('playing');
-//     setTimeout(() => chipEl.classList.remove('playing'), 600);
-//   }
-
-//   // 2. Energetic 4-note pop melody (Web Audio API) — C5-E5-G5-C6
-//   try {
-//     const ctx = getAudioCtx();
-//     const melody = [
-//       { freq: 523.25, t: 0.00, dur: 0.10 },
-//       { freq: 659.25, t: 0.08, dur: 0.10 },
-//       { freq: 783.99, t: 0.16, dur: 0.10 },
-//       { freq: 1046.5, t: 0.24, dur: 0.18 },
-//     ];
-//     melody.forEach(({ freq, t, dur }) => {
-//       const osc  = ctx.createOscillator();
-//       const gain = ctx.createGain();
-//       osc.type = 'triangle';
-//       osc.frequency.setValueAtTime(freq, ctx.currentTime + t);
-//       gain.gain.setValueAtTime(0, ctx.currentTime + t);
-//       gain.gain.linearRampToValueAtTime(0.38, ctx.currentTime + t + 0.01);
-//       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + dur);
-//       osc.connect(gain);
-//       gain.connect(ctx.destination);
-//       osc.start(ctx.currentTime + t);
-//       osc.stop(ctx.currentTime + t + dur + 0.01);
-//     });
-//   } catch (e) {
-//     console.warn('Audio play failed:', e);
-//   }
-
-//   // 3. Speak using ResponsiveVoice (Indonesian Female — natural teacher voice)
-//   // Fallback to browser SpeechSynthesis if offline / not loaded
-//   const intros = ['Wah, ini ', 'Ini dia ', 'Yuk lihat, ', 'Kita punya '];
-//   const intro   = intros[Math.floor(Math.random() * intros.length)];
-//   const text    = intro + label + '!';
-
-//   setTimeout(() => {
-//     if (typeof responsiveVoice !== 'undefined' && responsiveVoice.voiceSupport()) {
-//       // ✅ ResponsiveVoice — natural Indonesian Female (guru-like)
-//       responsiveVoice.cancel();
-//       responsiveVoice.speak(text, 'Indonesian Female', {
-//         rate:   1.0,    // Clear, normal conversational pace
-//         pitch:  1.1,    // Warm, friendly — not too high, not robotic
-//         volume: 1,
-//         onstart: () => console.log('🔊 RV speaking:', text),
-//       });
-//     } else {
-//       // Fallback: browser TTS
-//       if (!AppState.speechSynth) return;
-//       AppState.speechSynth.cancel();
-//       const utter   = new SpeechSynthesisUtterance(text);
-//       utter.lang    = 'id-ID';
-//       utter.rate    = 1.05;
-//       utter.pitch   = 1.2;
-//       utter.volume  = 1;
-//       const voices  = AppState.speechSynth.getVoices();
-//       const best    =
-//         voices.find(v => v.lang.startsWith('id') && v.localService) ||
-//         voices.find(v => v.lang.startsWith('id')) ||
-//         voices.find(v => v.localService) ||
-//         voices[0];
-//       if (best) utter.voice = best;
-//       AppState.speechSynth.speak(utter);
-//     }
-//   }, 250);
-// }
 
 function playChipSound(label, chipEl) {
   if (label === 'Rumput/Ranting') {
@@ -516,59 +389,42 @@ function playChipSound(label, chipEl) {
 
 
 
-// function playARInfo() {
-//   if (!AppState.speechSynth) {
-//     showToast('Browser tidak mendukung Text-to-Speech');
-//     return;
-//   }
-//   AppState.speechSynth.cancel();
-
-//   const info = AppState.currentARTarget;
-//   let text;
-//   if (info) {
-//     const materi = MATERI_DATA[info.category];
-//     text = `Ini adalah ${info.label}, termasuk sampah ${info.category}. ${materi.tts}`;
-//   } else {
-//     text = 'Arahkan kamera ke gambar marker untuk melihat penjelasannya.';
-//   }
-
-//   const utter = new SpeechSynthesisUtterance(text);
-//   utter.lang = 'id-ID';
-//   utter.rate = 0.85;
-//   utter.pitch = 1.0;
-//   AppState.speechSynth.speak(utter);
-//   showToast('🔊 Memutar penjelasan AR...');
-// }
-
 
 /* ============================================================
    INITIALIZE
    ============================================================ */
-document.addEventListener('DOMContentLoaded', () => {
-  // Show initial screen
-  showScreen('screen-home');
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log('EcoKids App Starting...');
 
-  // Sinkronkan avatar mini di burger menu & nama pengguna sejak awal
-  loadAvatar();
-  loadUsername();
 
-  // Simpan template asli scene AR agar bisa dibangun ulang saat AR di-restart
-  captureARSceneTemplate();
 
-  // Rotate fun facts every 6 seconds
-  setInterval(rotateFunFact, 6000);
-
-  // Preload voices for TTS
-  if (window.speechSynthesis) {
-    window.speechSynthesis.getVoices();
-    window.speechSynthesis.addEventListener('voiceschanged', () => {
-      window.speechSynthesis.getVoices();
-    });
+  await showScreen('screen-home');
+  // Load avatar mini dari localStorage
+  if (typeof loadAvatarMini === 'function') {
+    loadAvatarMini();
   }
 
-  // Handle back button
-  window.addEventListener('popstate', () => {
-    showScreen('screen-home');
+
+  // Jangan loadUsername/loadAvatar di sini
+  // karena profil belum tentu sudah dimuat.
+
+  captureARSceneTemplate();
+
+  setInterval(rotateFunFact, 6000);
+
+  if (window.speechSynthesis) {
+    window.speechSynthesis.getVoices();
+
+    window.speechSynthesis.addEventListener(
+      'voiceschanged',
+      () => {
+        window.speechSynthesis.getVoices();
+      }
+    );
+  }
+
+  window.addEventListener('popstate', async () => {
+    await showScreen('screen-home');
   });
 
   console.log('🌿 EcoKids AR — App initialized!');
