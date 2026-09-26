@@ -45,6 +45,24 @@ const TRASH_ITEMS = [
 ];
 
 /* ============================================================
+   DYNAMIC LEVEL CAPACITY
+   ============================================================ */
+function getMaxItemsByLevel() {
+  let score = 0;
+  if (typeof AppState !== 'undefined' && AppState.totalScore !== undefined) {
+    score = AppState.totalScore;
+  } else {
+    score = parseInt(localStorage.getItem('ecokids-total-score') || '0', 10);
+  }
+
+  // Penentuan jumlah item berdasarkan Poin / Lencana
+  if (score >= 80) return 5; // Pahlawan Lingkungan
+  if (score >= 50) return 4; // Penyelamat Bumi
+  if (score >= 35)  return 3; // Pelajar Hijau
+  return 2;                   // Pemula Lingkungan
+}
+
+/* ============================================================
    AUDIO
    ============================================================ */
 let gameAudioCtx = null;
@@ -155,12 +173,21 @@ function startGame() {
 
   clearBinHighlights();
   GameState.timerInterval = setInterval(tickTimer, 1000);
-  spawnItem();
-  GameState.spawnInterval = setInterval(() => {
-    if (GameState.currentItems.length < 2) spawnItem();
-  }, 2000);
 
-  showToast('🎮 Game dimulai! Pilah sampah yang benar!', 2000);
+  const maxItems = getMaxItemsByLevel();
+
+  // Spawn item awal sampai memenuhi kuota max level
+  for (let i = 0; i < maxItems; i++) {
+    spawnItem();
+  }
+
+  // Interval untuk spawn item pengganti saat ada item yang berhasil dipilah
+  GameState.spawnInterval = setInterval(() => {
+    const currentMax = getMaxItemsByLevel();
+    if (GameState.currentItems.length < currentMax) spawnItem();
+  }, 1500);
+
+  showToast(`🎮 Game dimulai! (Level Maks: ${maxItems} Sampah)`, 2000);
 }
 
 function stopGame() {
@@ -189,7 +216,8 @@ function updateTimerUI() {
    ITEM SPAWNING (max 2)
    ============================================================ */
 function spawnItem() {
-  if (!GameState.running || GameState.currentItems.length >= 2) return;
+  const maxItems = getMaxItemsByLevel();
+  if (!GameState.running || GameState.currentItems.length >= maxItems) return;
   const pool = TRASH_ITEMS.filter(t => !GameState.currentItems.some(i => i.templateId === t.id));
   if (!pool.length) return;
 
@@ -360,26 +388,37 @@ function clearBinHighlights() {
 function endGame() {
   stopGame();
 
-  // ============================================================
-  // UPDATE JUMLAH GAME DIMAINKAN
-  // ============================================================
+  // 1. UPDATE JUMLAH GAME DIMAINKAN
   let gamesPlayed = parseInt(
     localStorage.getItem('ecokids-games-played') || '0',
     10
   );
-
   gamesPlayed++;
+  localStorage.setItem('ecokids-games-played', gamesPlayed);
 
-  localStorage.setItem(
-    'ecokids-games-played',
-    gamesPlayed
+  // 2. UPDATE POIN / SCORE (1 Correct = 1 Poin)
+  let currentScore = parseInt(
+    localStorage.getItem('ecokids-total-score') || '0',
+    10
   );
+  const newScore = currentScore + GameState.correctCount;
+  localStorage.setItem('ecokids-total-score', newScore);
 
-  // Sinkronkan juga ke AppState
+  // 3. SINKRONKAN KE AppState (Jika ada)
   if (typeof AppState !== 'undefined') {
     AppState.gamesPlayed = gamesPlayed;
+    AppState.totalScore = newScore;
   }
 
+  // 4. UPDATE STATS UI JIKA FUNGSI TERSEDIA
+  if (typeof updateProfilStats === 'function') {
+    updateProfilStats();
+  }
+  if (typeof updateHomeStats === 'function') {
+    updateHomeStats();
+  }
+
+  // 5. TAMPILKAN POPUP GAME OVER
   const lives = GameState.lives;
   const correct = GameState.correctCount;
   let trophy = '💔', title = 'Coba Lagi Ya!';
@@ -391,7 +430,7 @@ function endGame() {
   document.getElementById('game-over-trophy').textContent = trophy;
   document.getElementById('game-over-title').textContent = title;
   document.getElementById('game-over-score').textContent = starsStr || '💔';
-  document.getElementById('stat-benar').textContent = `${GameState.correctCount} Benar`;
+  document.getElementById('stat-benar').textContent = `${GameState.correctCount} Benar (+${GameState.correctCount} Poin)`;
   document.getElementById('stat-salah').textContent = `${GameState.wrongCount} Salah`;
 
   const go = document.getElementById('game-over-screen');

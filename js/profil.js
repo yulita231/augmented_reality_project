@@ -36,41 +36,15 @@ function updateHomeStats() {
   const el = document.getElementById('home-score');
   const elDone = document.getElementById('home-done');
 
-  if (el) el.textContent = `${AppState.totalScore} Poin`;
-  if (elDone) {
-    elDone.textContent = `${AppState.completedMateri.length} Selesai`;
-  }
-}
-
-function updateProfilStats() {
-  const ps = document.getElementById('profil-score');
-  const pg = document.getElementById('profil-games');
-  const pm = document.getElementById('profil-materi');
-
-  // ============================================================
-  // SCORE
-  // ============================================================
-  if (ps) {
-    ps.textContent = AppState.totalScore;
-  }
-
-  // ============================================================
-  // GAMES PLAYED — AMBIL DARI LOCAL STORAGE
-  // ============================================================
-  const savedGamesPlayed = parseInt(
-    localStorage.getItem('ecokids-games-played') || '0',
+  // Ambil poin dari localStorage
+  const savedScore = parseInt(
+    localStorage.getItem('ecokids-total-score') || '0',
     10
   );
 
-  if (pg) {
-    pg.textContent = savedGamesPlayed;
-  }
-
-  // ============================================================
-  // MATERI
-  // ============================================================
-  if (pm) {
-    pm.textContent = AppState.completedMateri.length;
+  if (el) el.textContent = `${savedScore} Poin`;
+  if (elDone && typeof AppState !== 'undefined') {
+    elDone.textContent = `${AppState.completedMateri.length} Selesai`;
   }
 }
 
@@ -319,17 +293,17 @@ function getUsername() {
   } return 'EcoKid #1';
 }
 function loadUsername() {
-  const nameEl = document.getElementById('profil-name'); 
-  
-  if (!nameEl) { 
-    console.warn('Element #profil-name belum tersedia'); 
-    return; 
-  } 
-  
-  const name = getUsername(); 
-  nameEl.textContent = name; 
-  
-  return name; 
+  const nameEl = document.getElementById('profil-name');
+
+  if (!nameEl) {
+    console.warn('Element #profil-name belum tersedia');
+    return;
+  }
+
+  const name = getUsername();
+  nameEl.textContent = name;
+
+  return name;
 }
 
 function startEditUsername() {
@@ -496,7 +470,7 @@ function loadAvatarMini() {
   const saved = localStorage.getItem('ecokids-avatar');
   const miniImg = document.getElementById('profil-avatar-img-mini');
   const miniEmoji = document.getElementById('profil-avatar-emoji-mini');
-  
+
   if (!miniImg || !miniEmoji) return;
 
   if (saved) {
@@ -507,5 +481,97 @@ function loadAvatarMini() {
   } else {
     miniImg.classList.add('hidden');
     miniEmoji.style.display = 'block';
+  }
+}
+
+
+/* ============================================================
+   UPDATE STATS PROFIL & BADGES AUTOMATION
+   ============================================================ */
+function updateProfilStats() {
+  const ps = document.getElementById('profil-score');
+  const pg = document.getElementById('profil-games');
+  const pm = document.getElementById('profil-materi');
+
+  // 1. AMBIL POIN DARI LOCAL STORAGE
+  const savedScore = parseInt(
+    localStorage.getItem('ecokids-total-score') || '0',
+    10
+  );
+
+  if (ps) {
+    ps.textContent = savedScore;
+  }
+
+  // 2. AMBIL GAMES PLAYED
+  const savedGamesPlayed = parseInt(
+    localStorage.getItem('ecokids-games-played') || '0',
+    10
+  );
+
+  if (pg) {
+    pg.textContent = savedGamesPlayed;
+  }
+
+  if (pm && typeof AppState !== 'undefined') {
+    pm.textContent = AppState.completedMateri.length;
+  }
+
+  // 3. UPDATE LENCANA & LEVEL CHIP BERDASARKAN POIN
+  updateBadgesAndLevel(savedScore);
+}
+
+/**
+ * Memperbarui status Lencana (active/locked) dan Level Chip
+ * Pemula  : >= 25 Poin
+ * Pelajar : >= 35 Poin
+ * Ahli    : >= 50 Poin
+ * Pahlawan: >= 80 Poin
+ */
+function updateBadgesAndLevel(score) {
+  const badgePemula = document.getElementById('badge-pemula');
+  const badgePelajar = document.getElementById('badge-pelajar');
+  const badgeAhli = document.getElementById('badge-ahli');
+  const badgePahlawan = document.getElementById('badge-pahlawan');
+  const levelChip = document.getElementById('profil-level-chip');
+
+  // Ketentuan Ambang Poin
+  const isPemulaActive = score >= 0;
+  const isPelajarActive = score >= 35;
+  const isAhliActive = score >= 50;
+  const isPahlawanActive = score >= 80;
+
+  // Set Class Active / Locked pada Badge
+  if (badgePemula) toggleBadgeState(badgePemula, isPemulaActive);
+  if (badgePelajar) toggleBadgeState(badgePelajar, isPelajarActive);
+  if (badgeAhli) toggleBadgeState(badgeAhli, isAhliActive);
+  if (badgePahlawan) toggleBadgeState(badgePahlawan, isPahlawanActive);
+
+  // Update Level Chip sesuai kasta tertinggi yang diraih
+  if (levelChip) {
+    if (isPahlawanActive) {
+      levelChip.textContent = '🌍 Level: Pahlawan';
+    } else if (isAhliActive) {
+      levelChip.textContent = '🌳 Level: Ahli';
+    } else if (isPelajarActive) {
+      levelChip.textContent = '🌿 Level: Pelajar';
+    } else if (isPemulaActive) {
+      levelChip.textContent = '🌱 Level: Pemula';
+    } else {
+      levelChip.textContent = '🐣 Level: Pemula (Butuh 25 Poin)';
+    }
+  }
+}
+
+/**
+ * Helper untuk mengubah status class active/locked
+ */
+function toggleBadgeState(element, isActive) {
+  if (isActive) {
+    element.classList.add('active');
+    element.classList.remove('locked');
+  } else {
+    element.classList.add('locked');
+    element.classList.remove('active');
   }
 }

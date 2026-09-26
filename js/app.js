@@ -135,6 +135,7 @@ async function showScreen(screenId, skipLoad = false) {
   if (screenId === 'screen-profil') {
 
     // Pastikan HTML profil sudah ada
+    updateProfilStats();
     loadUsername();
     loadAvatar();
     updateProfilStats();
@@ -189,7 +190,7 @@ async function showScreen(screenId, skipLoad = false) {
    ============================================================ */
 const AppState = {
   currentScreen: 'home',
-  totalScore: 0,
+  totalScore: parseInt(localStorage.getItem('ecokids-total-score') || '0', 10),
   completedMateri: [],
   gamesPlayed: parseInt(
     localStorage.getItem('ecokids-games-played') || '0',
