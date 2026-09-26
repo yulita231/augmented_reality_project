@@ -355,7 +355,8 @@ function processItemDrop(uid, targetBin) {
     if (GameState.lives <= 0) { setTimeout(endGame, 600); return; }
   }
 
-  setTimeout(() => { if (GameState.running && GameState.currentItems.length < 2) spawnItem(); }, 700);
+  const maxItems = getMaxItemsByLevel();
+  setTimeout(() => { if (GameState.running && GameState.currentItems.length < maxItems) spawnItem(); }, 500);
 }
 
 /* ============================================================
