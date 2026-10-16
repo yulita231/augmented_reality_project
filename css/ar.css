@@ -8,28 +8,47 @@
   background: #000;
   z-index: 5;
 }
-/* Mengunci kamera AR agar pas di layar dan ada di belakang UI */
-video, 
-canvas {
+/* Mengunci kamera AR agar pas di layar dan ada di belakang UI.
+   Video kamera (z 0) harus DI BAWAH canvas 3D (z 1) — kalau sama,
+   video yang ditambahkan MindAR belakangan akan menutupi model 3D. */
+.ar-container video,
+.ar-container canvas {
   position: absolute !important;
   top: 0 !important;
   left: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
   object-fit: cover !important;
-  z-index: 1 !important;
-}
-.ar-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 20;
-  display: flex;
-  flex-direction: column;
-  pointer-events: none;
 }
 
-.ar-overlay>* {
+.ar-container video {
+  z-index: 0 !important;
+}
+
+.ar-container canvas {
+  z-index: 1 !important;
+}
+
+/* Tombol aktif (mis. Putar sedang jalan) */
+.ar-ctrl-btn.active .ar-ctrl-circle {
+  background: rgba(34, 197, 94, .35);
+  border-color: #22c55e;
+}
+
+/* Mode foto beku: sembunyikan bingkai scan, area tengah dipakai untuk geser-putar 3D */
+.ar-frozen .ar-corner,
+.ar-frozen .ar-scan-beam {
+  display: none;
+}
+
+.ar-frozen .ar-center-frame {
   pointer-events: auto;
+  touch-action: none;
+  cursor: grab;
+}
+
+.ar-frozen .ar-center-frame:active {
+  cursor: grabbing;
 }
 
 /* Top row */

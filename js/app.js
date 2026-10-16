@@ -205,6 +205,8 @@ const AppState = {
   currentARTarget: null,
   arBusy: false,
   arStopping: false,
+  arFrozen: false,     // true = layar AR sedang menampilkan foto beku
+  arCapturing: false,  // true = foto beku sedang di-scan
 };
 
 const FUN_FACTS = [

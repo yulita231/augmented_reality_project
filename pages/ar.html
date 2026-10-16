@@ -3,75 +3,78 @@
     <!-- A-Frame Scene -->
     <!-- Kunci kontak utama (Biarkan seperti aslinya) -->
     <a-scene id="ar-scene"
-        mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: false; uiLoading: no; uiError: no; uiScanning: no;"
+        mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: false; uiLoading: no; uiError: no; uiScanning: no; warmupTolerance: 3; missTolerance: 10;"
         color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false" embedded style="width:100%;height:100%;">
-        <!-- Semua model 3D yang sudah tersedia -->
-        <a-assets>
-            <a-asset-item id="model-baterai" src="./assets/models/0-battery.glb"></a-asset-item>
-            <a-asset-item id="model-botol" src="./assets/models/1-bottle.glb"></a-asset-item>
+        <!-- Semua model 3D — nama file sesuai assets/models/ (huruf kecil, tanpa spasi) -->
+        <a-assets timeout="30000">
+            <a-asset-item id="model-baterai" src="./assets/models/0-baterai.glb"></a-asset-item>
+            <a-asset-item id="model-botol" src="./assets/models/1-botol.glb"></a-asset-item>
             <a-asset-item id="model-kaleng" src="./assets/models/2-kaleng.glb"></a-asset-item>
-            <a-asset-item id="model-plastik" src="./assets/models/3-plastic.glb"></a-asset-item>
+            <a-asset-item id="model-plastik" src="./assets/models/3-kantong_plastik.glb"></a-asset-item>
+            <a-asset-item id="model-snack" src="./assets/models/4-snack.glb"></a-asset-item>
+            <a-asset-item id="model-daun" src="./assets/models/5-daun.glb"></a-asset-item>
+            <a-asset-item id="model-pisang" src="./assets/models/6-kulit_pisang.glb"></a-asset-item>
+            <a-asset-item id="model-telur" src="./assets/models/7-telur.glb"></a-asset-item>
+            <a-asset-item id="model-makanan" src="./assets/models/8-sisa_makanan.glb"></a-asset-item>
+            <a-asset-item id="model-tulang" src="./assets/models/9-tulang.glb"></a-asset-item>
         </a-assets>
 
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-        <!-- Target 0: Baterai (3D) -->
+        <a-light type="ambient" intensity="1.2"></a-light>
+        <a-light type="directional" intensity="1.5" position="0 1 1"></a-light>
+
+        <!-- fit-model: ukuran model otomatis disamakan (lebar marker = 1 unit) -->
+
+        <!-- Target 0: Baterai -->
         <a-entity mindar-image-target="targetIndex: 0">
-            <a-gltf-model id="obj-baterai" src="#model-baterai" scale="0.05 0.05 0.05" position="0 0 0" rotation="0 0 0"
-                visible="false">
-            </a-gltf-model>
+            <a-gltf-model id="obj-baterai" src="#model-baterai" fit-model="size: 0.8" visible="false"></a-gltf-model>
         </a-entity>
 
-        <!-- Target 1: Botol Plastik (3D) -->
+        <!-- Target 1: Botol Plastik -->
         <a-entity mindar-image-target="targetIndex: 1">
-            <a-gltf-model id="obj-botol" src="#model-botol" scale="0.05 0.05 0.05" position="0 0 0" rotation="0 0 0"
-                visible="false">
-            </a-gltf-model>
+            <a-gltf-model id="obj-botol" src="#model-botol" fit-model="size: 0.8" visible="false"></a-gltf-model>
         </a-entity>
 
-        <!-- Target 2: Kaleng (3D) -->
+        <!-- Target 2: Kaleng -->
         <a-entity mindar-image-target="targetIndex: 2">
-            <a-gltf-model id="obj-kaleng" src="#model-kaleng" scale="0.05 0.05 0.05" position="0 0 0" rotation="0 0 0"
-                visible="false">
-            </a-gltf-model>
+            <a-gltf-model id="obj-kaleng" src="#model-kaleng" fit-model="size: 0.8" visible="false"></a-gltf-model>
         </a-entity>
 
-        <!-- Target 3: Plastik (3D) -->
+        <!-- Target 3: Kantong Plastik -->
         <a-entity mindar-image-target="targetIndex: 3">
-            <a-gltf-model id="obj-plastik" src="#model-plastik" scale="0.05 0.05 0.05" position="0 0 0" rotation="0 0 0"
-                visible="false">
-            </a-gltf-model>
+            <a-gltf-model id="obj-plastik" src="#model-plastik" fit-model="size: 0.8" visible="false"></a-gltf-model>
         </a-entity>
 
-        <!-- Target 4 (Image 5 di Website) -->
+        <!-- Target 4: Kemasan Snack -->
         <a-entity mindar-image-target="targetIndex: 4">
-            <a-image src="./assets/images/4-kemasan-snack.png" position="0 0 0" height="1" width="1"></a-image>
+            <a-gltf-model id="obj-snack" src="#model-snack" fit-model="size: 0.8" visible="false"></a-gltf-model>
         </a-entity>
 
-        <!-- Target 5 (Image 6 di Website) -->
+        <!-- Target 5: Daun Kering -->
         <a-entity mindar-image-target="targetIndex: 5">
-            <a-image src="./assets/images/5-daun-kering.png" position="0 0 0" height="1" width="1"></a-image>
+            <a-gltf-model id="obj-daun" src="#model-daun" fit-model="size: 0.8" visible="false"></a-gltf-model>
         </a-entity>
 
-        <!-- Target 6 (Image 7 di Website) -->
+        <!-- Target 6: Kulit Pisang -->
         <a-entity mindar-image-target="targetIndex: 6">
-            <a-image src="./assets/images/6-kulit-pisang.png" position="0 0 0" height="1" width="1"></a-image>
+            <a-gltf-model id="obj-pisang" src="#model-pisang" fit-model="size: 0.8" visible="false"></a-gltf-model>
         </a-entity>
 
-        <!-- Target 7 (Image 8 di Website) -->
+        <!-- Target 7: Kulit Telur -->
         <a-entity mindar-image-target="targetIndex: 7">
-            <a-image src="./assets/images/7-kulit-telur.png" position="0 0 0" height="1" width="1"></a-image>
+            <a-gltf-model id="obj-telur" src="#model-telur" fit-model="size: 0.8" visible="false"></a-gltf-model>
         </a-entity>
 
-        <!-- Target 8 (Image 9 di Website) -->
+        <!-- Target 8: Sisa Makanan -->
         <a-entity mindar-image-target="targetIndex: 8">
-            <a-image src="./assets/images/8-sisa-makanan.png" position="0 0 0" height="1" width="1"></a-image>
+            <a-gltf-model id="obj-makanan" src="#model-makanan" fit-model="size: 0.8" visible="false"></a-gltf-model>
         </a-entity>
 
-        <!-- Target 9 (Image 10 di Website) -->
+        <!-- Target 9: Tulang Ayam -->
         <a-entity mindar-image-target="targetIndex: 9">
-            <a-image src="./assets/images/9-tulang-ayam.png" position="0 0 0" height="1" width="1"></a-image>
+            <a-gltf-model id="obj-tulang" src="#model-tulang" fit-model="size: 0.8" visible="false"></a-gltf-model>
         </a-entity>
     </a-scene>
 
@@ -123,8 +126,8 @@
                 <span>Putar</span>
             </button>
             <button class="ar-ctrl-btn ar-ctrl-main" id="btn-ar-capture" onclick="captureAR()">
-                <div class="ar-ctrl-circle ar-ctrl-circle-main">📷</div>
-                <span>Kamera</span>
+                <div class="ar-ctrl-circle ar-ctrl-circle-main" id="ar-capture-icon">📷</div>
+                <span id="ar-capture-label">Foto</span>
             </button>
             <button class="ar-ctrl-btn" id="btn-ar-audio" onclick="playARInfo()">
                 <div class="ar-ctrl-circle">🔊</div>
@@ -138,10 +141,11 @@
         <div class="ar-start-card">
             <div class="ar-start-icon">📷</div>
             <h3 class="ar-start-title">Mode AR Scan</h3>
-            <p class="ar-start-desc">Arahkan kamera ke gambar marker untuk melihat objek 3D muncul!</p>
+            <p class="ar-start-desc">Arahkan kamera ke gambar marker, tekan 📷 untuk memotret, lalu objek 3D muncul di foto!</p>
             <div class="ar-tips-list">
+                <div class="ar-tip-row"><span>👆</span><span>Geser foto untuk memutar objek 3D</span></div>
                 <div class="ar-tip-row"><span>💡</span><span>Pastikan cahaya cukup</span></div>
-                <div class="ar-tip-row"><span>📐</span><span>Jarak 20-30 cm dari marker</span></div>
+                <div class="ar-tip-row"><span>📐</span><span>Marker di tengah, ± setengah layar (jangan terlalu dekat)</span></div>
                 <div class="ar-tip-row"><span>🤚</span><span>Tahan kamera agar stabil</span></div>
             </div>
             <button id="btn-start-ar" class="btn-green-main" onclick="startAR()">🚀 Mulai Scan AR</button>

@@ -18,6 +18,59 @@ const AR_TARGET_INFO = [
 ];
 
 /* ============================================================
+   FIT-MODEL — samakan ukuran model GLB yang skala aslinya beda-beda.
+   Sisi terpanjang model diskalakan jadi `size` (lebar marker = 1 unit)
+   dan titik tengahnya dipindah ke tengah marker.
+   ============================================================ */
+if (window.AFRAME && !AFRAME.components['fit-model']) {
+  AFRAME.registerComponent('fit-model', {
+    schema: { size: { type: 'number', default: 0.8 } },
+
+    init() {
+      this.fit = this.fit.bind(this);
+      this.el.addEventListener('model-loaded', this.fit);
+      if (this.el.getObject3D('mesh')) this.fit();
+    },
+
+    remove() {
+      this.el.removeEventListener('model-loaded', this.fit);
+    },
+
+    fit() {
+      const mesh = this.el.getObject3D('mesh');
+      if (!mesh) return;
+
+      // Lepas sementara dari parent supaya bounding box dihitung di ruang lokal model
+      // (bukan ikut transform marker MindAR)
+      const parent = mesh.parent;
+      if (parent) parent.remove(mesh);
+      mesh.position.set(0, 0, 0);
+      mesh.scale.set(1, 1, 1);
+      mesh.updateMatrixWorld(true);
+
+      const box = new THREE.Box3().setFromObject(mesh);
+      if (parent) parent.add(mesh);
+      if (box.isEmpty()) {
+        console.warn(`[AR] ⚠️ fit-model #${this.el.id}: bounding box kosong, ukuran tidak disesuaikan`);
+        return;
+      }
+
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z) || 1;
+      const scale = this.data.size / maxDim;
+
+      mesh.scale.setScalar(scale);
+      mesh.position.copy(center).multiplyScalar(-scale);
+
+      const fmt = (n) => Number(n.toPrecision(3));
+      // console.log(`[AR] fit-model #${this.el.id}: ukuran asli ${fmt(size.x)} × ${fmt(size.y)} × ${fmt(size.z)}, skala ×${fmt(scale)}`);
+      if (!Number.isFinite(scale)) console.warn(`[AR] ⚠️ #${this.el.id}: skala tidak valid — model tidak akan terlihat`);
+    },
+  });
+}
+
+/* ============================================================
    AR SCAN
    ============================================================
    CATATAN PERBAIKAN BUG "kamera macet setelah back & buka lagi":
@@ -68,7 +121,71 @@ function rebuildARScene() {
   container.querySelectorAll('video, canvas').forEach(el => el.remove());
 
   container.insertAdjacentHTML('afterbegin', AR_SCENE_TEMPLATE);
-  return document.getElementById('ar-scene');
+  const scene = document.getElementById('ar-scene');
+  attachARDebugLogs(scene);
+  return scene;
+}
+
+/* ============================================================
+   DEBUG LOG — buka DevTools (F12) → Console, filter "[AR"
+   Menampilkan status download tiap file .glb, model yang gagal
+   di-parse, ukuran model, dan marker yang terdeteksi.
+   ============================================================ */
+function attachARDebugLogs(scene) {
+  if (!scene || scene.dataset.debugReady) return;
+  scene.dataset.debugReady = '1';
+
+  const status = {}; // id model → baris tabel ringkasan
+  const printSummary = () => {
+    const rows = Object.values(status);
+    // if (rows.every((r) => r.model !== '⏳')) {
+    //   console.log('[AR] Ringkasan model 3D:');
+    //   console.table(rows);
+    // }
+  };
+
+  scene.querySelectorAll('a-asset-item').forEach((item) => {
+    const src = item.getAttribute('src');
+    status[item.id] = { id: item.id, file: decodeURIComponent(src), download: '⏳', model: '⏳', target: '-' };
+
+    item.addEventListener('loaded', () => {
+      const bytes = item.data && item.data.byteLength;
+      status[item.id].download = `✅ ${bytes ? (bytes / 1048576).toFixed(1) + ' MB' : 'ok'}`;
+      // console.log(`[AR] ✅ Download OK: ${src}`);
+    });
+    item.addEventListener('error', (e) => {
+      const xhr = e.detail && e.detail.xhr;
+      const code = xhr ? `HTTP ${xhr.status}` : 'error';
+      status[item.id].download = `❌ ${code}`;
+      status[item.id].model = '❌ tidak dimuat';
+      console.error(`[AR] ❌ Download GAGAL (${code}): ${src} — cek nama file di assets/models/`, e.detail);
+      printSummary();
+    });
+  });
+
+  scene.querySelectorAll('a-gltf-model').forEach((model) => {
+    const assetId = (model.getAttribute('src') || '').replace('#', '');
+    // Baca dari atribut mentah ("targetIndex: 0") — komponennya mungkin belum ter-init
+    const anchor = model.closest('[mindar-image-target]');
+    const rawTarget = anchor ? anchor.attributes['mindar-image-target'].value : '';
+    const targetIndex = (rawTarget.match(/targetIndex:\s*(\d+)/) || [])[1] ?? '?';
+    if (status[assetId]) status[assetId].target = targetIndex;
+
+    model.addEventListener('model-loaded', () => {
+      const mesh = model.getObject3D('mesh');
+      let meshCount = 0;
+      if (mesh) mesh.traverse((o) => { if (o.isMesh) meshCount++; });
+      if (status[assetId]) status[assetId].model = `✅ ${meshCount} mesh`;
+      // console.log(`[AR] ✅ Model siap: #${model.id} (target ${targetIndex}), ${meshCount} mesh`);
+      if (!meshCount) console.warn(`[AR] ⚠️ #${model.id} tidak punya mesh — model akan kosong/tidak terlihat`);
+      printSummary();
+    });
+    model.addEventListener('model-error', (e) => {
+      if (status[assetId]) status[assetId].model = '❌ gagal parse';
+      console.error(`[AR] ❌ Model GAGAL di-parse: #${model.id} (target ${targetIndex})`, e.detail);
+      printSummary();
+    });
+  });
 }
 
 // Tunggu sampai a-scene benar-benar siap (systems ter-init) sebelum start()
@@ -160,6 +277,12 @@ async function stopARInternal() {
     AppState.arRotationInterval = null;
     AppState.arRotating = false;
   }
+  setRotateButtonActive(false);
+
+  // Keluar dari mode foto beku
+  AppState.arFrozen = false;
+  AppState.arCapturing = false;
+  setFrozenUI(false);
 
   // Stop MindAR system dengan benar (async)
   try {
@@ -209,6 +332,20 @@ function handleMarkerFound(event) {
 
   // Simpan supaya bisa dipakai di playARInfo() dan tombol "Pelajari"
   AppState.currentARTarget = info;
+
+  const foundModel = event.target.querySelector('a-gltf-model');
+  console.log(`[AR] 🎯 Marker ${targetIndex} (${info.label}) terdeteksi — ${AppState.arFrozen ? 'foto beku' : 'kamera live'}`
+    + (foundModel && !foundModel.getObject3D('mesh') ? ' ⚠️ tapi model 3D-nya BELUM/GAGAL dimuat' : ''));
+
+  // Kamera live: cukup beri petunjuk. Model 3D baru muncul di foto beku (captureAR)
+  if (!AppState.arFrozen) {
+    if (statusEl) {
+      statusEl.innerHTML = `<span class="ar-status-dot found"></span><span class="text-xs text-white font-semibold">${info.emoji} ${info.label} — tekan 📷</span>`;
+    }
+    showToast(`🎯 ${info.label} terlihat! Tekan 📷 untuk memotret`, 2000);
+    return;
+  }
+
   const model = event.target.querySelector('a-gltf-model');
   if (model) {
     model.setAttribute('visible', true);
@@ -240,6 +377,10 @@ function handleMarkerLost(event) {
 
   const model = event.target.querySelector('a-gltf-model');
   if (model) model.setAttribute('visible', false);
+  if (!AppState.arFrozen) {
+    const comp = event.target.components['mindar-image-target'];
+    console.log(`[AR] Marker ${comp ? comp.data.targetIndex : '?'} hilang dari kamera`);
+  }
 
   if (infoPanel) infoPanel.classList.add('hidden');
   if (statusEl) {
@@ -247,43 +388,236 @@ function handleMarkerLost(event) {
   }
 }
 
-function toggleARRotate() {
-  const btn = document.getElementById('btn-ar-rotate');
-  const group = document.getElementById('ar-trash-group');
-  const group2 = document.getElementById('ar-trash-group-2');
+// Dipanggil showScreen('screen-ar') setiap kali halaman AR dimuat
+function initAR() {
+  captureARSceneTemplate();
+  attachARDebugLogs(document.getElementById('ar-scene'));
+  setupARDragRotate();
+}
 
+/* ============================================================
+   PUTAR — memutar model 3D yang sedang tampil
+   (otomatis lewat tombol Putar, atau geser jari/mouse di foto)
+   ============================================================ */
+const AR_ROTATE_SPEED = Math.PI / 2; // radian per detik (~4 detik sekali putar)
+const AR_DRAG_SPEED = 0.01;          // radian per piksel geser
+
+function getARModels() {
+  return document.querySelectorAll('#ar-scene a-gltf-model');
+}
+
+function rotateARModels(yaw, pitch) {
+  getARModels().forEach((model) => {
+    model.object3D.rotation.y += yaw;
+    model.object3D.rotation.x += pitch;
+  });
+}
+
+function setRotateButtonActive(active) {
+  const btn = document.getElementById('btn-ar-rotate');
+  if (btn) btn.classList.toggle('active', active);
+}
+
+function toggleARRotate() {
   if (!AppState.arRotating) {
     AppState.arRotating = true;
-    let rot = 0;
+    let last = performance.now();
     AppState.arRotationInterval = setInterval(() => {
-      rot += 2;
-      if (group) group.setAttribute('rotation', `0 ${rot} 0`);
-      if (group2) group2.setAttribute('rotation', `0 ${rot} 0`);
-    }, 30);
-    if (btn) {
-      btn.style.background = 'rgba(34, 197, 94, 0.35)';
-      btn.style.borderColor = '#22c55e';
-    }
+      const now = performance.now();
+      rotateARModels(AR_ROTATE_SPEED * (now - last) / 1000, 0);
+      last = now;
+    }, 16);
+    setRotateButtonActive(true);
     showToast('🔄 Rotasi otomatis aktif');
   } else {
     AppState.arRotating = false;
     clearInterval(AppState.arRotationInterval);
     AppState.arRotationInterval = null;
-    if (btn) {
-      btn.style.background = '';
-      btn.style.borderColor = '';
-    }
+    setRotateButtonActive(false);
     showToast('⏹ Rotasi dihentikan');
   }
 }
 
-function captureAR() {
+// Geser di area tengah layar untuk memutar model — hanya aktif saat foto beku
+function setupARDragRotate() {
+  const area = document.querySelector('#ar-overlay .ar-center-frame');
+  if (!area || area.dataset.dragReady) return;
+  area.dataset.dragReady = '1';
+
+  let last = null;
+  area.addEventListener('pointerdown', (e) => {
+    if (!AppState.arFrozen) return;
+    last = { x: e.clientX, y: e.clientY };
+    area.setPointerCapture(e.pointerId);
+  });
+  area.addEventListener('pointermove', (e) => {
+    if (!last) return;
+    rotateARModels((e.clientX - last.x) * AR_DRAG_SPEED, (e.clientY - last.y) * AR_DRAG_SPEED);
+    last = { x: e.clientX, y: e.clientY };
+  });
+  const end = () => { last = null; };
+  area.addEventListener('pointerup', end);
+  area.addEventListener('pointercancel', end);
+}
+
+/* ============================================================
+   KAMERA — foto beku lalu di-scan
+   1. Tekan 📷 → video kamera di-pause (layar membeku seperti foto)
+   2. Frame beku itu di-scan MindAR untuk mencari marker
+   3. Model 3D muncul di atas marker pada foto, bisa diputar
+   4. Tekan 🔁 Foto Ulang → kembali ke kamera live
+   ============================================================ */
+function getARAnchors() {
+  return Array.from(document.querySelectorAll('#ar-scene [mindar-image-target]'))
+    .map((el) => el.components['mindar-image-target'])
+    .filter(Boolean);
+}
+
+function setARStatus(text, found = false) {
+  const statusEl = document.getElementById('ar-status');
+  if (statusEl) {
+    statusEl.innerHTML = `<span class="ar-status-dot${found ? ' found' : ''}"></span><span class="text-xs text-white font-semibold">${text}</span>`;
+  }
+}
+
+function setFrozenUI(frozen) {
+  const container = document.getElementById('ar-container');
+  if (container) container.classList.toggle('ar-frozen', frozen);
+  const icon = document.getElementById('ar-capture-icon');
+  const label = document.getElementById('ar-capture-label');
+  if (icon) icon.textContent = frozen ? '🔁' : '📷';
+  if (label) label.textContent = frozen ? 'Foto Ulang' : 'Foto';
+}
+
+// Scan frame video yang sedang di-pause (pakai controller internal MindAR).
+// Detektor MindAR hanya membaca kotak kecil (± setengah sisi pendek frame,
+// mis. 256px pada video 640×480), jadi dicoba beberapa posisi:
+// tengah dulu, lalu 9 posisi geser 3×3 (cropDetector.detectMoving berputar sendiri).
+const AR_SCAN_ATTEMPTS = 10;
+
+async function detectTargetInFrozenFrame(system) {
+  const controller = system.controller;
+  const count = controller.markerDimensions ? controller.markerDimensions.length : AR_TARGET_INFO.length;
+  const indexes = Array.from({ length: count }, (_, i) => i);
+
+  const inputT = controller.inputLoader.loadInput(system.video);
+  try {
+    for (let attempt = 0; attempt < AR_SCAN_ATTEMPTS; attempt++) {
+      const { featurePoints } = attempt === 0
+        ? controller.cropDetector.detect(inputT)
+        : controller.cropDetector.detectMoving(inputT);
+      if (!featurePoints || !featurePoints.length) continue;
+
+      const { targetIndex, modelViewTransform } = await controller._workerMatch(featurePoints, indexes);
+      if (targetIndex != null && targetIndex !== -1 && modelViewTransform) {
+        console.log(`[AR] Scan foto: cocok di percobaan ${attempt + 1}/${AR_SCAN_ATTEMPTS} (${featurePoints.length} titik fitur)`);
+        return { targetIndex, worldMatrix: controller.getWorldMatrix(modelViewTransform, targetIndex) };
+      }
+    }
+    return null;
+  } finally {
+    inputT.dispose();
+  }
+}
+
+// Marker yang sedang dilacak live. "showing" = sudah stabil beberapa frame;
+// kalau belum, pakai yang baru mulai terlacak (isTracking) supaya tidak terlewat.
+function getLiveTrackingResult(controller) {
+  const states = controller.trackingStates || [];
+
+  const showingIndex = states.findIndex((s) => s.showing && s.trackingMatrix);
+  if (showingIndex !== -1) {
+    return { targetIndex: showingIndex, worldMatrix: Array.from(states[showingIndex].trackingMatrix) };
+  }
+
+  const trackingIndex = states.findIndex((s) => s.isTracking && s.currentModelViewTransform);
+  if (trackingIndex !== -1) {
+    return {
+      targetIndex: trackingIndex,
+      worldMatrix: controller.getWorldMatrix(states[trackingIndex].currentModelViewTransform, trackingIndex),
+    };
+  }
+  return null;
+}
+
+async function captureAR() {
+  if (AppState.arCapturing) return;
+  if (AppState.arFrozen) {
+    resumeARLive();
+    return;
+  }
+
+  const system = AppState.arSystem;
+  const controller = system && system.controller;
+  if (!AppState.arRunning || !controller || !system.video) {
+    showToast('⚠️ Mulai Scan AR dulu sebelum memotret');
+    return;
+  }
+
+  AppState.arCapturing = true;
+
   const flash = document.getElementById('capture-flash');
   if (flash) {
     flash.classList.remove('hidden');
     setTimeout(() => flash.classList.add('hidden'), 400);
   }
-  showToast('📸 Foto diambil! (Demo mode)', 2000);
+
+  // Cadangan: marker yang sedang terlacak live tepat saat tombol ditekan
+  const liveResult = getLiveTrackingResult(controller);
+
+  // Bekukan layar: video di-pause & tracking live dihentikan
+  system.pause();
+  AppState.arFrozen = true;
+  setFrozenUI(true);
+  setARStatus('Menganalisis foto...');
+
+  try {
+    // Beri waktu loop tracking yang sedang berjalan untuk selesai
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    let result = null;
+    try {
+      result = await detectTargetInFrozenFrame(system);
+    } catch (e) {
+      console.warn('[AR] Scan foto gagal, pakai hasil tracking live:', e);
+    }
+    console.log('[AR] 📸 Hasil scan foto:', result ? `marker ${result.targetIndex} (${AR_TARGET_INFO[result.targetIndex]?.label})` : 'tidak ada',
+      '| tracking live saat dipotret:', liveResult ? `marker ${liveResult.targetIndex} (${AR_TARGET_INFO[liveResult.targetIndex]?.label})` : 'tidak ada');
+    result = result || liveResult;
+
+    if (!AppState.arFrozen) return; // user sudah tekan Foto Ulang / keluar
+
+    // Sembunyikan semua dulu, lalu tampilkan hanya yang terdeteksi
+    getARAnchors().forEach((anchor) => anchor.updateWorldMatrix(null));
+
+    if (!result) {
+      setARStatus('Objek tidak dikenali');
+      showToast('🤔 Objek tidak dikenali di foto. Tekan 🔁 Foto Ulang', 3000);
+      return;
+    }
+
+    const anchor = getARAnchors().find((a) => a.data.targetIndex === result.targetIndex);
+    if (anchor) anchor.updateWorldMatrix(result.worldMatrix); // memicu handleMarkerFound
+
+    setARStatus('Geser untuk memutar 3D', true);
+  } catch (e) {
+    console.error('Capture AR error:', e);
+    showToast('⚠️ Gagal memproses foto', 2500);
+  } finally {
+    AppState.arCapturing = false;
+  }
+}
+
+// Kembali ke kamera live dari mode foto beku
+function resumeARLive() {
+  getARAnchors().forEach((anchor) => anchor.updateWorldMatrix(null));
+  getARModels().forEach((model) => model.object3D.rotation.set(0, 0, 0));
+
+  AppState.arFrozen = false;
+  setFrozenUI(false);
+  if (AppState.arSystem) AppState.arSystem.unpause();
+
+  setARStatus('Mencari...');
 }
 
 
@@ -377,3 +711,4 @@ function playARDetectSound() {
     console.warn('AR detect sound failed:', e);
   }
 }
+  
